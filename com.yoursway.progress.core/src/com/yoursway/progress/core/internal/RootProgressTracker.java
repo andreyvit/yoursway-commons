@@ -58,4 +58,12 @@ public class RootProgressTracker implements Tracker {
         }
     }
 
+    public void setTaskNameFromChild(String name, Naming naming) {
+        setTaskNameFromChild(name, 0);
+    }
+
+    public void setTaskNameFromChild(String name, int level) {
+        reporter.setAction(level, name);
+    }
+
 }

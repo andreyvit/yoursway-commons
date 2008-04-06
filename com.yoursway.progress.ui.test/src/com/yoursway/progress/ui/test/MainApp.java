@@ -128,7 +128,7 @@ public class MainApp implements ApplicationRunnable {
                 items.skip();
                 continue;
             }
-            items.item();
+            items.item("file" + i);
             Progress downloadProgress = items.subtask(10, Naming.AS_CHILDREN);
             Progress verifyProgress = items.subtask(1, Naming.AS_CHILDREN);
             String s = download(1, downloadProgress);
@@ -138,11 +138,13 @@ public class MainApp implements ApplicationRunnable {
     }
     
     private void verify(String s, Progress progress) {
+        progress.setTaskName("Verification");
         work(progress, 5, 1);
         progress.done();
     }
     
     private String download(int index, Progress progress) {
+        progress.setTaskName("Downloading");
         int size = 5 * (10 + index);
         work(progress, size, 5);
         progress.done();

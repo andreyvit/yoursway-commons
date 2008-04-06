@@ -1,5 +1,8 @@
 package com.yoursway.progress.core.internal;
 
+import static com.yoursway.progress.core.Naming.AS_CHILDREN;
+import static com.yoursway.progress.core.Naming.AS_SIBLINGS;
+import static com.yoursway.progress.core.Naming.OFF;
 import static com.yoursway.utils.YsMath.eq;
 import static com.yoursway.utils.YsMath.gt;
 import static com.yoursway.utils.YsMath.lt;
@@ -27,6 +30,8 @@ public class ChildProgressTracker implements Progress, Tracker {
     private final Naming parentNaming;
 
     private double parentEps;
+    
+    private boolean taskNameSet = false;
     
     public ChildProgressTracker(Tracker parent, double parentWeightAllocated, Naming parentNaming) {
         if (parent == null)
@@ -71,11 +76,15 @@ public class ChildProgressTracker implements Progress, Tracker {
     public ItemizedProgress items(int items, double totalWeigth) {
         checkCancellation();
         allocatedWeight += totalWeigth;
-        return new ChildItemizedProgressTracker(this, items, totalWeigth);
+        return new ChildItemizedProgressTracker(this, items, totalWeigth, AS_CHILDREN);
     }
 
     public void setTaskName(String name) {
         checkCancellation();
+        if (parentNaming == OFF)
+            return;
+        taskNameSet = true;
+        parent.setTaskNameFromChild(name, parentNaming);
     }
     
     public void skip(double weight) {
@@ -133,6 +142,23 @@ public class ChildProgressTracker implements Progress, Tracker {
             usedWeight = 0;
             parentWeightUsed += parentDelta;
         }
+    }
+
+    public void setTaskNameFromChild(String name, Naming naming) {
+        if (parentNaming == OFF)
+            return;
+        if (naming == AS_SIBLINGS)
+            parent.setTaskNameFromChild(name, parentNaming);
+        else
+            setTaskNameFromChild(name, 0);
+    }
+
+    public void setTaskNameFromChild(String name, int level) {
+        if (parentNaming == OFF)
+            return;
+        if (taskNameSet)
+            level += 1;
+        parent.setTaskNameFromChild(name, level);
     }
     
 }

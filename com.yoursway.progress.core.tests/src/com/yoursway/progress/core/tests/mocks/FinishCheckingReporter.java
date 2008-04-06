@@ -16,7 +16,7 @@ public class FinishCheckingReporter implements ProgressReporter {
         return false;
     }
 
-    public void setAction(String action) {
+    public void setAction(int level, String action) {
     }
 
     public void setProgress(double progress) {
