@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PingBack core
+Bundle-SymbolicName: com.yoursway.pingback.core
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: com.yoursway.pingback.core

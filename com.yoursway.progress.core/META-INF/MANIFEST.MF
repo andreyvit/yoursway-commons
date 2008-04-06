@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Progress Core
+Bundle-SymbolicName: com.yoursway.progress.core
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: com.yoursway.progress.core
+Require-Bundle: com.yoursway.pingback.core;bundle-version="1.0.0",
+ com.yoursway.utils;bundle-version="1.0.0"

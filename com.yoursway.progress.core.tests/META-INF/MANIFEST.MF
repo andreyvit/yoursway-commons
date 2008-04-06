@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests Plug-in
+Bundle-SymbolicName: com.yoursway.progress.core.tests
+Bundle-Version: 1.0.0
+Bundle-Activator: com.yoursway.progress.core.tests.internal.Activator
+Bundle-Vendor: YOURSWAY
+Require-Bundle: org.eclipse.core.runtime,
+ org.junit4;bundle-version="4.3.1",
+ com.yoursway.progress.core;bundle-version="1.0.0",
+ com.yoursway.pingback.core;bundle-version="1.0.0",
+ com.yoursway.utils;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ActivationPolicy: lazy
