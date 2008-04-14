@@ -5,6 +5,7 @@ import static com.google.common.collect.Iterators.transform;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -27,9 +28,27 @@ public class YsStrings {
     }
     
     public static String sortedToString(Iterator<?> iterator) {
-        List<String> list = newArrayList(transform(iterator, TO_STRING));
+        List<String> list = newArrayList(toStringList(iterator));
         Collections.sort(list);
         return list.toString();
+    }
+
+    public static Iterator<String> toStringList(Iterator<?> iterator) {
+        return transform(iterator, TO_STRING);
+    }
+    
+    public static Iterator<String> toStringList(Iterable<?> iterable) {
+        return toStringList(iterable.iterator());
+    }
+    
+    public static <T extends Comparable<T>> List<T> sortedCopy(Iterable<T> iterable) {
+        return sortedCopy(iterable.iterator());
+    }
+    
+    public static <T extends Comparable<T>> List<T> sortedCopy(Iterator<T> iterator) {
+        List<T> list = newArrayList(iterator);
+        Collections.sort(list);
+        return list;
     }
 
     /**
