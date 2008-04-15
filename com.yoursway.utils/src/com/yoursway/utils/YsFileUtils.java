@@ -1,6 +1,7 @@
 package com.yoursway.utils;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Collections.emptyList;
 
 import java.io.ByteArrayInputStream;
@@ -16,14 +17,18 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.zip.Deflater;
+import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class YsFileUtils {
     
+    public static final String UTF8_ENCODING = "utf-8";
+    
     public static String readAsString(File source) throws IOException {
-        return readAsString(source, "utf-8");
+        return readAsString(source, UTF8_ENCODING);
     }
     
     public static String readAsString(File source, String encoding) throws IOException {
@@ -34,7 +39,7 @@ public class YsFileUtils {
     }
     
     public static void writeString(File destination, String data) throws IOException {
-        writeString(destination, data, "utf-8");
+        writeString(destination, data, UTF8_ENCODING);
     }
     
     public static void writeString(File destination, String data, String encoding) throws IOException {
@@ -199,30 +204,98 @@ public class YsFileUtils {
     }
     
     public static void zipFolderContents(File folder, File zip) throws IOException {
+        zip(zip, newArrayList(new ZipRoot(folder, "")));
+    }
+    
+    public static void zip(File zip, Collection<ZipRoot> roots) throws IOException {
         FileOutputStream fout = new FileOutputStream(zip);
         ZipOutputStream out = new ZipOutputStream(fout);
         try {
-            zipChildren(folder, "", out);
+            for (ZipRoot root : roots)
+                zipChildren(root.folder(), root.prefix(), out);
         } finally {
             out.close();
         }
     }
     
-    private static void zipChildren(File folder, String path, ZipOutputStream out) throws IOException {
+    public static void zipChildren(File folder, String prefix, ZipOutputStream out) throws IOException {
         File[] files = folder.listFiles();
         if (files == null)
             return;
         for (File file : files) {
             if (file.isFile()) {
-                String name = path + file.getName();
+                String name = prefix + file.getName();
                 out.putNextEntry(new ZipEntry(name));
                 loadFromFile(file, out);
                 out.closeEntry();
             } else if (file.isDirectory()) {
-                zipChildren(file, path + file.getName() + "/", out);
+                zipChildren(file, prefix + file.getName() + "/", out);
             }
         }
         
+    }
+    
+    public static void rewriteZip(File source, OutputStream outf, Map<String, InputStream> overrides)
+            throws IOException {
+        Map<String, InputStream> data = newHashMap(overrides);
+        InputStream inf = new FileInputStream(source);
+        try {
+            ZipInputStream in = new ZipInputStream(inf);
+            ZipOutputStream out = new ZipOutputStream(outf);
+            ZipEntry entry;
+            while (null != (entry = in.getNextEntry())) {
+                String name = entry.getName();
+                InputStream replacement = data.remove(name);
+                if (replacement == null) {
+                    out.putNextEntry(entry);
+                    transfer(in, out);
+                } else {
+                    out.putNextEntry(new ZipEntry(name));
+                    transfer(replacement, out);
+                }
+            }
+            for (Map.Entry<String, InputStream> item : data.entrySet()) {
+                out.putNextEntry(new ZipEntry(item.getKey()));
+                transfer(item.getValue(), out);
+            }
+            in.close();
+            out.closeEntry();
+        } finally {
+            inf.close();
+        }
+    }
+    
+    public static String readFileOrZipAsString(File directoryOrArchive, String relativePath)
+            throws IOException {
+        return readFileOrZipAsString(directoryOrArchive, relativePath, UTF8_ENCODING);
+    }
+    
+    public static String readFileOrZipAsString(File directoryOrArchive, String relativePath, String encoding)
+            throws IOException {
+        byte[] bytes = readFileOrZipAsBytes(directoryOrArchive, relativePath);
+        return new String(bytes, encoding);
+    }
+    
+    public static byte[] readFileOrZipAsBytes(File directoryOrArchive, String relativePath)
+            throws IOException {
+        InputStream in = openFileOrZip(directoryOrArchive, relativePath);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        transfer(in, baos);
+        byte[] bytes = baos.toByteArray();
+        return bytes;
+    }
+    
+    public static InputStream openFileOrZip(File directoryOrArchive, String relativePath) throws IOException {
+        if (directoryOrArchive.isDirectory()) {
+            return new FileInputStream(new File(directoryOrArchive, relativePath));
+        } else {
+            ZipFile file = new ZipFile(directoryOrArchive);
+            ZipEntry entry = file.getEntry(relativePath);
+            if (entry == null)
+                throw new IOException("Entry " + relativePath + " not found in " + directoryOrArchive);
+            InputStream in = file.getInputStream(entry);
+            return new DelegatingZipClosingInputStream(in, file);
+        }
     }
     
 }
