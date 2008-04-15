@@ -225,7 +225,9 @@ public class YsFileUtils {
         for (File file : files) {
             if (file.isFile()) {
                 String name = prefix + file.getName();
-                out.putNextEntry(new ZipEntry(name));
+                ZipEntry entry = new ZipEntry(name);
+                entry.setTime(file.lastModified());
+                out.putNextEntry(entry);
                 loadFromFile(file, out);
                 out.closeEntry();
             } else if (file.isDirectory()) {
@@ -250,7 +252,9 @@ public class YsFileUtils {
                     out.putNextEntry(entry);
                     transfer(in, out);
                 } else {
-                    out.putNextEntry(new ZipEntry(name));
+                    ZipEntry newEntry = new ZipEntry(name);
+                    newEntry.setTime(entry.getTime());
+                    out.putNextEntry(newEntry);
                     transfer(replacement, out);
                 }
             }
@@ -259,7 +263,7 @@ public class YsFileUtils {
                 transfer(item.getValue(), out);
             }
             in.close();
-            out.closeEntry();
+            out.finish();
         } finally {
             inf.close();
         }
