@@ -2,6 +2,7 @@ package com.yoursway.utils;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static com.yoursway.utils.relativepath.Pathes.relativePath;
 import static java.util.Collections.emptyList;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,8 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import com.yoursway.utils.relativepath.RelativePath;
+
 public class YsFileUtils {
     
     public static final String UTF8_ENCODING = "utf-8";
@@ -38,6 +41,17 @@ public class YsFileUtils {
         return new String(bytes, encoding);
     }
     
+    public static String readAsString(InputStream source) throws IOException {
+        return readAsString(source, UTF8_ENCODING);
+    }
+    
+    public static String readAsString(InputStream source, String encoding) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        transfer(source, baos);
+        byte[] bytes = baos.toByteArray();
+        return new String(bytes, encoding);
+    }
+    
     public static void writeString(File destination, String data) throws IOException {
         writeString(destination, data, UTF8_ENCODING);
     }
@@ -46,8 +60,20 @@ public class YsFileUtils {
         writeBytes(destination, data.getBytes(encoding));
     }
     
-    public static void writeBytes(File destination, byte[] data) throws FileNotFoundException, IOException {
+    public static void writeBytes(File destination, byte[] data) throws IOException {
         saveToFile(new ByteArrayInputStream(data), destination);
+    }
+    
+    public static void writeString(OutputStream destination, String data) throws IOException {
+        writeString(destination, data, UTF8_ENCODING);
+    }
+    
+    public static void writeString(OutputStream destination, String data, String encoding) throws IOException {
+        writeBytes(destination, data.getBytes(encoding));
+    }
+    
+    public static void writeBytes(OutputStream destination, byte[] data) throws IOException {
+        transfer(new ByteArrayInputStream(data), destination);
     }
     
     public static void cp_r(File source, File destinationParentFolder) throws IOException {
@@ -145,8 +171,8 @@ public class YsFileUtils {
         return new File(file.getParentFile(), file.getName() + ".dir");
     }
     
-    public static File findEclipsePluginJar(File folder, String bundleName) {
-        return chooseLatestVersion(findEclipsePluginJars(folder, bundleName));
+    public static File findLatestOsgiBundle(File folder, String bundleName) {
+        return chooseLatestVersion(findOsgiBundles(folder, bundleName));
     }
     
     public static File chooseLatestVersion(Collection<File> jars) {
@@ -157,7 +183,7 @@ public class YsFileUtils {
         return jarsList.get(jarsList.size() - 1);
     }
     
-    public static Collection<File> findEclipsePluginJars(File folder, String bundleName) {
+    public static Collection<File> findOsgiBundles(File folder, String bundleName) {
         Collection<File> result = newArrayList();
         File[] files = folder.listFiles();
         if (files != null)
@@ -237,36 +263,58 @@ public class YsFileUtils {
         
     }
     
-    public static void rewriteZip(File source, OutputStream outf, Map<String, InputStream> overrides)
+    public static void rewriteZipBasic(File source, OutputStream outf, Map<String, InputStream> overrides)
             throws IOException {
-        Map<String, InputStream> data = newHashMap(overrides);
         InputStream inf = new FileInputStream(source);
         try {
-            ZipInputStream in = new ZipInputStream(inf);
-            ZipOutputStream out = new ZipOutputStream(outf);
-            ZipEntry entry;
-            while (null != (entry = in.getNextEntry())) {
-                String name = entry.getName();
-                InputStream replacement = data.remove(name);
-                if (replacement == null) {
-                    out.putNextEntry(entry);
-                    transfer(in, out);
-                } else {
-                    ZipEntry newEntry = new ZipEntry(name);
-                    newEntry.setTime(entry.getTime());
-                    out.putNextEntry(newEntry);
-                    transfer(replacement, out);
-                }
-            }
-            for (Map.Entry<String, InputStream> item : data.entrySet()) {
-                out.putNextEntry(new ZipEntry(item.getKey()));
-                transfer(item.getValue(), out);
-            }
-            in.close();
-            out.finish();
+            rewriteZipBasic(inf, outf, overrides);
         } finally {
             inf.close();
         }
+    }
+    
+    public static void rewriteZip(File source, OutputStream outf, Map<String, StreamFilter> overrides)
+            throws IOException {
+        InputStream inf = new FileInputStream(source);
+        try {
+            rewriteZip(inf, outf, overrides);
+        } finally {
+            inf.close();
+        }
+    }
+    
+    public static void rewriteZipBasic(InputStream source, OutputStream outf,
+            Map<String, InputStream> overrides) throws IOException {
+        Map<String, StreamFilter> data = newHashMap();
+        for (Map.Entry<String, InputStream> entry : overrides.entrySet())
+            data.put(entry.getKey(), new CopyFromStreamFilter(entry.getValue()));
+        rewriteZip(source, outf, data);
+    }
+    
+    public static void rewriteZip(InputStream source, OutputStream outf, Map<String, StreamFilter> rewrites)
+            throws IOException {
+        Map<String, StreamFilter> rewritesRemaining = newHashMap(rewrites);
+        ZipInputStream in = new ZipInputStream(source);
+        ZipOutputStream out = new ZipOutputStream(outf);
+        ZipEntry entry;
+        while (null != (entry = in.getNextEntry())) {
+            String name = entry.getName();
+            StreamFilter filter = rewritesRemaining.remove(name);
+            if (filter == null) {
+                out.putNextEntry(entry);
+                transfer(in, out);
+            } else {
+                ZipEntry newEntry = new ZipEntry(name);
+                newEntry.setTime(entry.getTime());
+                out.putNextEntry(newEntry);
+                filter.process(in, out);
+            }
+        }
+        for (Map.Entry<String, StreamFilter> item : rewritesRemaining.entrySet()) {
+            out.putNextEntry(new ZipEntry(item.getKey()));
+            item.getValue().process(new ByteArrayInputStream(new byte[0]), out);
+        }
+        out.finish();
     }
     
     public static String readFileOrZipAsString(File directoryOrArchive, String relativePath)
@@ -300,6 +348,18 @@ public class YsFileUtils {
             InputStream in = file.getInputStream(entry);
             return new DelegatingZipClosingInputStream(in, file);
         }
+    }
+    
+    public static RelativePath calculateRelativePath(File root, File path) {
+        return calculateRelativePath_(root, path, relativePath(""));
+    }
+    
+    private static RelativePath calculateRelativePath_(File root, File path, RelativePath currentPath) {
+        if (root == null)
+            return null;
+        if (root.equals(path))
+            return currentPath;
+        return calculateRelativePath_(root, path.getParentFile(), relativePath(path.getName()).append(currentPath));
     }
     
 }
