@@ -13,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.Collection;
@@ -30,6 +32,39 @@ public class YsFileUtils {
     
     public static final String UTF8_ENCODING = "utf-8";
     
+    public static Object readAsObject(File source) throws IOException, ClassNotFoundException {
+        FileInputStream in = new FileInputStream(source);
+        try {
+            ObjectInputStream oi = new ObjectInputStream(in);
+            return oi.readObject();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    public static void writeObject(Object object, File file) throws IOException {
+        FileOutputStream out = new FileOutputStream(file);
+        try {
+            writeObject(object, out);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void writeObject(Object object, OutputStream out) throws IOException {
+        ObjectOutputStream oo = new ObjectOutputStream(out);
+        oo.writeObject(object);
+        oo.flush();
+    }
+    
     public static String readAsString(File source) throws IOException {
         return readAsString(source, UTF8_ENCODING);
     }
@@ -39,6 +74,14 @@ public class YsFileUtils {
         loadFromFile(source, baos);
         byte[] bytes = baos.toByteArray();
         return new String(bytes, encoding);
+    }
+    
+    public static String readAsStringAndClose(InputStream source) throws IOException {
+        try {
+            return readAsString(source, UTF8_ENCODING);
+        } finally {
+            source.close();
+        }
     }
     
     public static String readAsString(InputStream source) throws IOException {
@@ -62,6 +105,14 @@ public class YsFileUtils {
     
     public static void writeBytes(File destination, byte[] data) throws IOException {
         saveToFile(new ByteArrayInputStream(data), destination);
+    }
+    
+    public static void writeStringAndClose(OutputStream destination, String data) throws IOException {
+        try {
+            writeString(destination, data, UTF8_ENCODING);
+        } finally {
+            destination.close();
+        }
     }
     
     public static void writeString(OutputStream destination, String data) throws IOException {
@@ -160,6 +211,16 @@ public class YsFileUtils {
         int len;
         while ((len = in.read(buf)) > 0)
             out.write(buf, 0, len);
+    }
+    
+    public static void transfer(InputStream in, OutputStream out, int maxBytes) throws IOException {
+        byte[] buf = new byte[maxBytes];
+        int done = 0;
+        int len;
+        while (done < maxBytes && (len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+            done += len;
+        }
     }
     
     private static byte[] allocateBuffer() {
@@ -359,7 +420,8 @@ public class YsFileUtils {
             return null;
         if (root.equals(path))
             return currentPath;
-        return calculateRelativePath_(root, path.getParentFile(), relativePath(path.getName()).append(currentPath));
+        return calculateRelativePath_(root, path.getParentFile(), relativePath(path.getName()).append(
+                currentPath));
     }
     
 }
