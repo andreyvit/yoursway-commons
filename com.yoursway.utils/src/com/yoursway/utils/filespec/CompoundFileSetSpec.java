@@ -5,6 +5,7 @@ import static com.google.common.base.Join.join;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Sets.newHashSet;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -12,9 +13,11 @@ import com.google.common.collect.Lists;
 import com.yoursway.utils.fileset.FileSet;
 import com.yoursway.utils.relativepath.RelativePath;
 
-public class CompoundFileSetSpec implements FileSetSpec {
+public class CompoundFileSetSpec implements FileSetSpec, Serializable {
 	
-	private List<FileSetSpec> children = Lists.newArrayList();
+    private static final long serialVersionUID = 1L;
+    
+    private List<FileSetSpec> children = Lists.newArrayList();
 	
 	public void add(FileSetSpec spec) {
 		children.add(spec);

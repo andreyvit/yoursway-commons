@@ -2,14 +2,17 @@ package com.yoursway.utils.filespec;
 
 import static com.google.common.collect.Sets.newHashSet;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import com.yoursway.utils.fileset.FileSet;
 import com.yoursway.utils.relativepath.RelativePath;
 
-public class ExcludedFileSpec implements FileSetSpec {
+public class ExcludedFileSpec implements FileSetSpec, Serializable {
 	
-	private final FileSetSpec included;
+    private static final long serialVersionUID = 1L;
+    
+    private final FileSetSpec included;
 	private final FileSetSpec excluded;
 
 	public ExcludedFileSpec(FileSetSpec included, FileSetSpec excluded) {

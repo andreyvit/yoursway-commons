@@ -1,11 +1,15 @@
 package com.yoursway.utils.filespec;
 
+import java.io.Serializable;
+
 import com.yoursway.utils.fileset.FileSet;
 import com.yoursway.utils.relativepath.RelativePath;
 
-public class AllFilesSpec implements FileSetSpec {
+public class AllFilesSpec implements FileSetSpec, Serializable {
 
-	public boolean contains(RelativePath file) {
+    private static final long serialVersionUID = 1L;
+
+    public boolean contains(RelativePath file) {
 		return true;
 	}
 	

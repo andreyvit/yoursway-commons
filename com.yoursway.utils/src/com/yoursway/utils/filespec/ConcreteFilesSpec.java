@@ -3,6 +3,7 @@ package com.yoursway.utils.filespec;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.yoursway.utils.YsStrings.sortedToString;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
 
@@ -10,9 +11,11 @@ import com.google.common.collect.Sets;
 import com.yoursway.utils.fileset.FileSet;
 import com.yoursway.utils.relativepath.RelativePath;
 
-public class ConcreteFilesSpec implements FileSetSpec {
+public class ConcreteFilesSpec implements FileSetSpec, Serializable {
 	
-	private final Set<RelativePath> files;
+    private static final long serialVersionUID = 1L;
+    
+    private final Set<RelativePath> files;
 
 	public ConcreteFilesSpec(Collection<RelativePath> files) {
 		this.files = Sets.newHashSet(files);

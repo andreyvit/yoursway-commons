@@ -1,6 +1,7 @@
 package com.yoursway.utils.relativepath;
 
 import java.io.File;
+import java.io.Serializable;
 
 /** 
  * The standard implementation of the <code>IPath</code> interface.
@@ -18,8 +19,11 @@ import java.io.File;
  * </p>
  * @see RelativePath
  */
-public class RelativePathImpl implements RelativePath, Cloneable {
-	/** masks for separator values */
+public class RelativePathImpl implements RelativePath, Cloneable, Serializable {
+    
+    private static final long serialVersionUID = 1L;
+    
+    /** masks for separator values */
 	private static final int HAS_LEADING = 1;
 	private static final int IS_UNC = 2;
 	private static final int HAS_TRAILING = 4;
