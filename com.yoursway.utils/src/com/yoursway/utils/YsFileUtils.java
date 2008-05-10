@@ -424,4 +424,19 @@ public class YsFileUtils {
                 currentPath));
     }
     
+    public static String joinPath(String a, String b) {
+        if (a.length() == 0)
+            return b;
+        if (b.length() == 0)
+            return a;
+        boolean suffixed = a.endsWith("/");
+        boolean prefixed = b.startsWith("/");
+        if (suffixed && prefixed)
+            return a + b.substring(1);
+        else if (!suffixed && !prefixed)
+            return a + "/" + b;
+        else
+            return a + b;
+    }
+    
 }

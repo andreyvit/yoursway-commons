@@ -1,11 +1,12 @@
 package com.yoursway.utils;
 
 import static com.google.common.base.Functions.TO_STRING;
+import static com.google.common.base.Join.join;
 import static com.google.common.collect.Iterators.transform;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.yoursway.utils.YsIterables.sort;
 
 import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -21,6 +22,22 @@ public class YsStrings {
             }
             
         };
+    }
+    
+    public static <T> String sortedToStringUsing(Iterable<T> iterable, String delimiter) {
+        return sortedToStringUsing(iterable.iterator(), delimiter);
+    }
+    
+    public static <T> String sortedToStringUsing(Iterator<T> iterator, String delimiter) {
+        return join(delimiter, sort(toStringList(iterator)));
+    }
+    
+    public static <T> String sortedToStringWithNewLines(Iterable<T> iterable) {
+        return sortedToStringUsing(iterable, "\n");
+    }
+    
+    public static <T> String sortedToStringWithNewLines(Iterator<T> iterator) {
+        return sortedToStringUsing(iterator, "\n");
     }
     
     public static String sortedToString(Iterable<?> collection) {
@@ -42,13 +59,11 @@ public class YsStrings {
     }
     
     public static <T extends Comparable<T>> List<T> sortedCopy(Iterable<T> iterable) {
-        return sortedCopy(iterable.iterator());
+        return YsIterables.sort(iterable);
     }
     
     public static <T extends Comparable<T>> List<T> sortedCopy(Iterator<T> iterator) {
-        List<T> list = newArrayList(iterator);
-        Collections.sort(list);
-        return list;
+        return YsIterables.sort(iterator);
     }
 
     /**
