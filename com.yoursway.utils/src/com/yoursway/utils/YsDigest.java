@@ -8,6 +8,18 @@ import java.security.NoSuchAlgorithmException;
 
 public class YsDigest {
     
+    public static String sha1(String data) {
+        try {
+            MessageDigest algo = createSha1();
+            byte[] bytes = data.getBytes("utf-8");
+            algo.update(bytes);
+            return asHex(algo.digest());
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError(e);
+        }
+        
+    }
+    
     public static String md5(String data) {
         try {
             MessageDigest algo = createMd5();
@@ -38,6 +50,14 @@ public class YsDigest {
     private static MessageDigest createMd5() {
         try {
             return MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+        }
+    }
+    
+    private static MessageDigest createSha1() {
+        try {
+            return MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError(e);
         }
