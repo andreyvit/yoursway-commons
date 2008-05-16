@@ -22,6 +22,10 @@ public class StringExtractor {
         this.autoSkip = autoSkip;
     }
     
+    public boolean hasMore() {
+        return data.length() > 0;
+    }
+    
     public String requireAsString(Pattern pattern) {
         Matcher match = require(pattern);
         return (match == null ? null : match.group());
@@ -71,6 +75,11 @@ public class StringExtractor {
     public void mustBeEnd() {
         if (data.length() > 0)
             throw new IllegalArgumentException("Extra data in the string: " + data);
+    }
+    
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + " at Ò" + data + "Ó";
     }
     
 }
