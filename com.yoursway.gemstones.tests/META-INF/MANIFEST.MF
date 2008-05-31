@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests Plug-in
+Bundle-SymbolicName: com.yoursway.gemstones.tests
+Bundle-Version: 1.0.0
+Bundle-Activator: com.yoursway.gemstones.tests.internal.Activator
+Bundle-Vendor: YOURSWAY
+Require-Bundle: org.eclipse.core.runtime,
+ com.yoursway.gemstones;bundle-version="1.0.0",
+ org.junit4;bundle-version="4.3.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy

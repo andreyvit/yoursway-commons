@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gemstones Plug-in
+Bundle-SymbolicName: com.yoursway.gemstones
+Bundle-Version: 1.0.0
+Bundle-Vendor: YOURSWAY
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.yoursway.utils;bundle-version="1.0.0",
+ com.google.collections;bundle-version="1.0.0"
+Export-Package: com.yoursway.utils.gemstones

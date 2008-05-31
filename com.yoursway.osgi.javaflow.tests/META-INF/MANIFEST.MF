@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests Plug-in
+Bundle-SymbolicName: com.yoursway.osgi.javaflow.tests
+Bundle-Version: 1.0.0
+Bundle-Vendor: YOURSWAY
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: com.yoursway.osgi.javaflow.tests.continuations;bundle-version="1.0.0",
+ org.junit4;bundle-version="4.3.1",
+ org.apache.commons.javaflow;bundle-version="1.0.0"

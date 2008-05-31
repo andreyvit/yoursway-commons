@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Continuations Plug-in
+Bundle-SymbolicName: com.yoursway.osgi.javaflow.tests.continuations
+Bundle-Version: 1.0.0
+Bundle-Vendor: YOURSWAY
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+JavaFlow-Enabled: true
+Export-Package: com.yoursway.osgi.javaflow.tests.continuations
+Require-Bundle: org.apache.commons.javaflow;bundle-version="1.0.0"
