@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Additions Plug-in
+Bundle-SymbolicName: com.yoursway.easymock.additions
+Bundle-Version: 1.0.0
+Bundle-Vendor: YOURSWAY
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.easymock;bundle-version="1.0.0"
+Export-Package: com.yoursway.easymock.additions
