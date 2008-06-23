@@ -4,7 +4,6 @@ import static com.google.common.base.Functions.TO_STRING;
 import static com.google.common.base.Join.join;
 import static com.google.common.collect.Iterators.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static com.yoursway.utils.YsIterables.sort;
 
 import java.text.Collator;
 import java.util.Collections;
@@ -13,6 +12,18 @@ import java.util.Iterator;
 import java.util.List;
 
 public class YsStrings {
+    
+    public static String emptyToNull(String string) {
+        if (string == null || string.length() == 0)
+            return null;
+        return string;
+    }
+    
+    public static String nullToEmpty(String string) {
+        if (string == null)
+            return "";
+        return string;
+    }
     
     public static Comparator<Object> toStringComparator(final Comparator<? super String> cmp) {
         return new Comparator<Object>() {
@@ -29,7 +40,7 @@ public class YsStrings {
     }
     
     public static <T> String sortedToStringUsing(Iterator<T> iterator, String delimiter) {
-        return join(delimiter, sort(toStringList(iterator)));
+        return join(delimiter, YsCollections.sort(toStringList(iterator)));
     }
     
     public static <T> String sortedToStringWithNewLines(Iterable<T> iterable) {
@@ -59,11 +70,11 @@ public class YsStrings {
     }
     
     public static <T extends Comparable<T>> List<T> sortedCopy(Iterable<T> iterable) {
-        return YsIterables.sort(iterable);
+        return YsCollections.sort(iterable);
     }
     
     public static <T extends Comparable<T>> List<T> sortedCopy(Iterator<T> iterator) {
-        return YsIterables.sort(iterator);
+        return YsCollections.sort(iterator);
     }
 
     /**
