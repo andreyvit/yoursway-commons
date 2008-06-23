@@ -28,8 +28,8 @@ public class Flipper {
     private static final double Z_EYE = 1;
     private static final double Z_OBJECT = Z_EYE + 10;
     
-    private final Control source;
-    private final Control destination;
+    private Control source;
+    private Control destination;
     private final Display display;
     private final OverlayFactory overlayFactory;
     private final int iterations;
@@ -50,6 +50,10 @@ public class Flipper {
     
     public synchronized void removeListener(FlipperListener listener) {
         listeners.remove(listener);
+    }
+    
+    public Flipper(Control source, Control destination) {
+        this(source, destination, 370);
     }
     
     public Flipper(Control source, Control destination, long duration) {
@@ -96,7 +100,7 @@ public class Flipper {
     }
     
     public Control getTopControl() {
-        return destination;
+        return source;
     }
     
     public void flip() {
@@ -112,6 +116,10 @@ public class Flipper {
         Rectangle bounds = overlay.getBounds();
         offscreenImage = new Image(display, bounds.width, bounds.height);
         offscreenGC = new GC(offscreenImage);
+        
+        Control temp = source;
+        source = destination;
+        destination = temp;
         
         Thread thread = new FlipExecuter(offscreenImage, offscreenGC, bounds);
         thread.setName("Flip animation");
