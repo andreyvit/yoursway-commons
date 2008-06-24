@@ -21,6 +21,15 @@ public class YsSwtUtils {
                 + (monitorBounds.height - shellSize.y) / 2);
     }
     
+    public static Point lowerLeft(Rectangle rectangle) {
+        return new Point(rectangle.x, rectangle.y);
+    }
+    
+    public static void setLowerLeft(Rectangle rectangle, Point point) {
+        rectangle.x = point.x;
+        rectangle.y = point.y;
+    }
+    
     public static Display currentDisplay() {
         Display display = Display.getCurrent();
         if (display == null)
