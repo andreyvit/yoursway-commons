@@ -13,6 +13,12 @@ import java.util.List;
 
 public class YsStrings {
     
+    public static String emptyToNullWithTrim(String string) {
+        if (string == null || (string = string.trim()).length() == 0)
+            return null;
+        return string;
+    }
+    
     public static String emptyToNull(String string) {
         if (string == null || string.length() == 0)
             return null;
