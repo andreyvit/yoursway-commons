@@ -3,6 +3,9 @@
  */
 package com.yoursway.swt.overlay;
 
+import static com.yoursway.swt.additions.YsSwtUtils.lowerLeft;
+import static com.yoursway.swt.additions.YsSwtUtils.setLowerLeft;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
@@ -20,6 +23,7 @@ public class TemporaryCanvasOverlay implements Overlay {
     private Canvas canvas;
     private Image screenshot;
     private Rectangle bounds;
+    private Control originalControl;
     
     public TemporaryCanvasOverlay(Control control, Rectangle bounds) {
         if (control == null)
@@ -27,6 +31,7 @@ public class TemporaryCanvasOverlay implements Overlay {
         if (bounds == null)
             throw new NullPointerException("bounds is null");
         
+        this.originalControl = control;
         control = findSuitableControl(control, bounds);
         this.bounds = bounds;
         makeScreenshot(control);
@@ -38,7 +43,7 @@ public class TemporaryCanvasOverlay implements Overlay {
         canvas.setBackground(new Color(null, 255, 0, 0));
         gc.fillRectangle(new Rectangle(0, 0, bounds.width, bounds.height));
     }
-
+    
     private Control findSuitableControl(Control control, Rectangle bounds) {
         Point screenPoint = control.toDisplay(bounds.x, bounds.y);
         Rectangle controlBounds = control.getBounds();
@@ -55,7 +60,7 @@ public class TemporaryCanvasOverlay implements Overlay {
         }
         return control;
     }
-
+    
     private void makeScreenshot(Control control) {
         GC screenshotGc;
         if (control instanceof Shell) {
@@ -70,13 +75,13 @@ public class TemporaryCanvasOverlay implements Overlay {
             for (Control child : ((Shell) control).getChildren()) {
                 child.print(tempGc);
                 Rectangle bounds = child.getBounds();
-                screenshotGc.drawImage(temp, 0, 0, bounds.width, bounds.height, 
-                        bounds.x, bounds.y, bounds.width, bounds.height);
+                screenshotGc.drawImage(temp, 0, 0, bounds.width, bounds.height, bounds.x, bounds.y,
+                        bounds.width, bounds.height);
             }
             
             tempGc.dispose();
             temp.dispose();
-        } else { 
+        } else {
             Point screenshotSize = control.getSize();
             screenshot = new Image(control.getDisplay(), screenshotSize.x, screenshotSize.y);
             screenshotGc = new GC(screenshot);
@@ -84,8 +89,11 @@ public class TemporaryCanvasOverlay implements Overlay {
         }
         
         // remove the control being flipped
-        screenshotGc.setBackground(control.getBackground());
-        screenshotGc.fillRectangle(bounds);
+        screenshotGc.setBackground(control.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        Rectangle boundsToErase = originalControl.getBounds();
+        Point pt = control.toControl(originalControl.getParent().toDisplay(lowerLeft(boundsToErase)));
+        setLowerLeft(boundsToErase, pt);
+        screenshotGc.fillRectangle(boundsToErase);
         
         screenshotGc.dispose();
         
@@ -93,7 +101,7 @@ public class TemporaryCanvasOverlay implements Overlay {
             Shell s = new Shell((Shell) null, SWT.DIALOG_TRIM);
             s.setText("Screenshot");
             Rectangle sb = screenshot.getBounds();
-            Rectangle rect = s.computeTrim(10, 10, sb.width, sb.height);
+            Rectangle rect = s.computeTrim(50, 50, sb.width, sb.height);
             s.setBounds(rect);
             s.open();
             GC gc2 = new GC(s);

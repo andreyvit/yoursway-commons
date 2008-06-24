@@ -6,5 +6,6 @@ Bundle-Version: 1.0.0
 Bundle-Vendor: YourSway
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.swt;bundle-version="3.4.0",
- com.yoursway.utils;bundle-version="1.0.0"
+ com.yoursway.utils;bundle-version="1.0.0",
+ com.yoursway.swt.additions;bundle-version="1.0.0"
 Export-Package: com.yoursway.swt.animations.flip

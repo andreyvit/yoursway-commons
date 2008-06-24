@@ -26,7 +26,7 @@ public class Flipper {
     
     private static final int FPS = 30;
     private static final double Z_EYE = 1;
-    private static final double Z_OBJECT = Z_EYE + 10;
+    private static final double Z_OBJECT = Z_EYE + 5;
     
     private Control source;
     private Control destination;
