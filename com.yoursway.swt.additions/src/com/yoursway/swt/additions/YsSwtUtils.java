@@ -1,5 +1,6 @@
 package com.yoursway.swt.additions;
 
+import static com.yoursway.swt.additions.YsStandardFonts.miniFont;
 import static com.yoursway.swt.additions.YsStandardFonts.smallFont;
 
 import org.eclipse.swt.graphics.Font;
@@ -35,6 +36,10 @@ public class YsSwtUtils {
         if (display == null)
             throw new IllegalStateException("Must be called from a UI thread");
         return display;
+    }
+    
+    public static void applyMiniSize(Control control) {
+        applyFont(control, miniFont());
     }
     
     public static void applySmallSize(Control control) {
