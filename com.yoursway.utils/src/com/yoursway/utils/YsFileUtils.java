@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -429,6 +430,10 @@ public class YsFileUtils {
      */
     public static String joinPath(String a, String b) {
         return YsPathUtils.joinPath(a, b);
+    }
+
+    public static boolean isBogusFile(String name) {
+        return Pattern.compile("^([._](git|svn|darcs)|CVS|\\.DS_Store)$").matcher(name).find();
     }
     
 }
