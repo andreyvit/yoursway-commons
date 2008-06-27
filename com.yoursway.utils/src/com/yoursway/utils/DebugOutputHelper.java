@@ -12,17 +12,21 @@ public class DebugOutputHelper {
     
     private static ThreadLocal<Map<Object, Object>> objectsBeingPrinted = new ThreadLocal<Map<Object, Object>>();
     
+    public static String simpleNameOf(Object instance) {
+        return simpleNameOf(instance.getClass());
+    }
+    
     public static String simpleNameOf(Class<?> klass) {
         String simpleName = klass.getSimpleName();
         if (simpleName.length() == 0) {
             String fullName = klass.getName();
-            simpleName = fullName.substring(fullName.lastIndexOf('.'));
+            simpleName = fullName.substring(fullName.lastIndexOf('.') + 1);
         }
         return simpleName;
     }
     
     /**
-     * Field values are not used Ñ the only point of them is to avoid
+     * Field values are not used ï¿½ the only point of them is to avoid
      * "unused field" warnings.
      */
     public static String reflectionBasedToString(Object object, Object... fieldValues) {
