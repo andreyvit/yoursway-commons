@@ -16,6 +16,11 @@ public class YsSwtGeometry {
         return new Rectangle(0, 0, 0, 0);
     }
     
+    public static Rectangle centeredRectange(Rectangle area, int width, int height) {
+        return new Rectangle(area.x + (area.width - width) / 2, area.y + (area.height - height) / 2, width,
+                height);
+    }
+    
     public static void set(Rectangle destination, Rectangle source) {
         destination.x = source.x;
         destination.y = source.y;

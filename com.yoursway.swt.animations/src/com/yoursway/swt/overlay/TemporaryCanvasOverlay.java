@@ -10,6 +10,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
@@ -24,6 +25,7 @@ public class TemporaryCanvasOverlay implements Overlay {
     private Image screenshot;
     private Rectangle bounds;
     private Control originalControl;
+    private Color erasedBackgroundColor;
     
     public TemporaryCanvasOverlay(Control control, Rectangle bounds) {
         if (control == null)
@@ -42,6 +44,10 @@ public class TemporaryCanvasOverlay implements Overlay {
         drawOverlayBackgroundOnto(gc, new Rectangle(0, 0, bounds.width, bounds.height));
         canvas.setBackground(new Color(null, 255, 0, 0));
         gc.fillRectangle(new Rectangle(0, 0, bounds.width, bounds.height));
+    }
+    
+    public Canvas getCanvas() {
+        return canvas;
     }
     
     private Control findSuitableControl(Control control, Rectangle bounds) {
@@ -73,8 +79,10 @@ public class TemporaryCanvasOverlay implements Overlay {
             screenshotGc.setBackground(control.getBackground());
             screenshotGc.fillRectangle(clientArea);
             for (Control child : ((Shell) control).getChildren()) {
-                child.print(tempGc);
                 Rectangle bounds = child.getBounds();
+                tempGc.drawImage(screenshot, bounds.x, bounds.y, bounds.width, bounds.height, 0, 0,
+                        bounds.width, bounds.height);
+                child.print(tempGc);
                 screenshotGc.drawImage(temp, 0, 0, bounds.width, bounds.height, bounds.x, bounds.y,
                         bounds.width, bounds.height);
             }
@@ -89,11 +97,13 @@ public class TemporaryCanvasOverlay implements Overlay {
         }
         
         // remove the control being flipped
-        screenshotGc.setBackground(control.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-        Rectangle boundsToErase = originalControl.getBounds();
-        Point pt = control.toControl(originalControl.getParent().toDisplay(lowerLeft(boundsToErase)));
-        setLowerLeft(boundsToErase, pt);
-        screenshotGc.fillRectangle(boundsToErase);
+        if (erasedBackgroundColor != null) {
+            screenshotGc.setBackground(erasedBackgroundColor);
+            Rectangle boundsToErase = originalControl.getBounds();
+            Point pt = control.toControl(originalControl.getParent().toDisplay(lowerLeft(boundsToErase)));
+            setLowerLeft(boundsToErase, pt);
+            screenshotGc.fillRectangle(boundsToErase);
+        }
         
         screenshotGc.dispose();
         
@@ -148,6 +158,57 @@ public class TemporaryCanvasOverlay implements Overlay {
     
     public void renderOffscreenImage(Image offscreenImage) {
         gc.drawImage(offscreenImage, 0, 0);
+    }
+
+    public void enableBackgroundErasing(Color color) {
+        this.erasedBackgroundColor = color;
+    }
+
+    public void disposeWithFadeout(final Image sourceImage, final int delay) {
+        final Image image = new Image(canvas.getDisplay(), bounds.width, bounds.height);
+        final GC gc = new GC(image);
+        
+        new Thread("Fadeout animation") {
+            
+            {
+                setDaemon(true);
+            }
+            
+            public void run() {
+                try {
+                    long endTime = System.currentTimeMillis() + delay;
+                    while (true) {
+                        int remainder = (int) (endTime - System.currentTimeMillis());
+                        if (remainder < 0)
+                            break;
+                        int alpha = 255 * remainder / delay;
+                        
+                        gc.setAlpha(255);
+                        drawOverlayBackgroundOnto(gc, image.getBounds());
+                        gc.setAlpha(alpha);
+                        gc.drawImage(sourceImage, 0, 0);
+                        renderOffscreenImage(image);
+                        
+                        try {
+                            Thread.sleep(1000 / 30);
+                        } catch (InterruptedException e) {
+                        }
+                    }
+                } finally {
+                    canvas.getDisplay().asyncExec(new Runnable() {
+                        
+                        public void run() {
+                            gc.dispose();
+                            image.dispose();
+                            sourceImage.dispose();
+                            dispose();
+                        }
+                        
+                    });
+                }
+            }
+            
+        }.start();
     }
     
 }

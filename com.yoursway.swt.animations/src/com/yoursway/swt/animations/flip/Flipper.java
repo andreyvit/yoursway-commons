@@ -6,6 +6,7 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.System.currentTimeMillis;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -112,6 +113,7 @@ public class Flipper {
         
         overlay = overlayFactory.createOverlay(source, new Rectangle(-canvasOverhangWidth / 2, 0,
                 screenshotBounds.width + canvasOverhangWidth, screenshotBounds.height));
+        overlay.enableBackgroundErasing(source.getDisplay().getSystemColor(SWT.COLOR_BLACK));
         
         Rectangle bounds = overlay.getBounds();
         offscreenImage = new Image(display, bounds.width, bounds.height);
