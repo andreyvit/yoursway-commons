@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Leopard FS Monitoring
+Bundle-SymbolicName: com.yoursway.fsmonitor.macosx.leopard;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Fragment-Host: com.yoursway.fsmonitor;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.yoursway.utils;bundle-version="1.0.0"
