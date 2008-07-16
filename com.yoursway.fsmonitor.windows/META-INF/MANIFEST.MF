@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Fragment-Host: com.yoursway.fsmonitor
+Bundle-ManifestVersion: 2
+Bundle-Name: File System Monitoring on Windows
+Bundle-SymbolicName: com.yoursway.fsmonitor.windows;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
