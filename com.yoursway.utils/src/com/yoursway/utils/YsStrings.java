@@ -13,6 +13,16 @@ import java.util.List;
 
 public class YsStrings {
     
+    public static String replace(String original, int start, int length, String replacement) {
+        StringBuilder builder = new StringBuilder(original.length() - length + replacement.length());
+        if (start > 0)
+            builder.append(original.substring(0, start));
+        builder.append(replacement);
+        if (start + length < original.length())
+            builder.append(original.substring(start + length));
+        return builder.toString();
+    }
+    
     public static String emptyToNullWithTrim(String string) {
         if (string == null || (string = string.trim()).length() == 0)
             return null;
