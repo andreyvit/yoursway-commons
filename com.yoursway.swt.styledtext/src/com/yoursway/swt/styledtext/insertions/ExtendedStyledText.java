@@ -11,6 +11,8 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 
 import com.yoursway.utils.annotations.UseFromAnyThread;
@@ -247,6 +249,14 @@ public class ExtendedStyledText {
     @UseFromUIThread
     public Rectangle getClientArea() {
         return internal.getClientArea();
+    }
+    
+    public Shell getShell() {
+        return internal.getShell();
+    }
+    
+    public Display getDisplay() {
+        return internal.getDisplay();
     }
     
 }
