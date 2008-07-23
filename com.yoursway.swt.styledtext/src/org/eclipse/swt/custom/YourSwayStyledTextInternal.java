@@ -20,6 +20,7 @@ import com.yoursway.swt.styledtext.extended.internal.EmbeddedBlockSite;
 import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
+@UseFromUIThread
 public class YourSwayStyledTextInternal extends StyledText {
     
     private final Collection<EmbeddedBlockSite> blockSites = new LinkedList<EmbeddedBlockSite>();
@@ -83,7 +84,6 @@ public class YourSwayStyledTextInternal extends StyledText {
     }
     
     @Override
-    @UseFromUIThread
     public void scroll(int destX, int destY, int x, int y, int width, int height, boolean all) {
         super.scroll(destX, destY, x, y, width, height, false);
     }
@@ -135,7 +135,6 @@ public class YourSwayStyledTextInternal extends StyledText {
         return 1;
     }
     
-    @UseFromUIThread
     public void addEmbeddedBlock(int lineIndex, final EmbeddedBlock block) {
         int offset = lineEndOffset(lineIndex);
         replaceTextRange(offset, 0, "\n" + insertionPlaceholder());
@@ -162,14 +161,12 @@ public class YourSwayStyledTextInternal extends StyledText {
         });
     }
     
-    @UseFromUIThread
     public int lineEndOffset(int lineIndex) {
         int lineOffset = getOffsetAtLine(lineIndex);
         int lineLength = getLine(lineIndex).length();
         return lineOffset + lineLength;
     }
     
-    @UseFromUIThread
     public EmbeddedBlock existingInsertion(int lineIndex) {
         int offset = lineEndOffset(lineIndex) + 1;
         for (EmbeddedBlockSite insertion : blockSites) {
@@ -179,7 +176,6 @@ public class YourSwayStyledTextInternal extends StyledText {
         return null;
     }
     
-    @UseFromUIThread
     public boolean removeInsertion(int lineIndex) {
         if (!lineHasInsertion(lineIndex))
             return false;
@@ -196,25 +192,21 @@ public class YourSwayStyledTextInternal extends StyledText {
         return true;
     }
     
-    @UseFromUIThread
     boolean lineHasInsertion() {
         return lineHasInsertion(selectedLines().y);
     }
     
-    @UseFromUIThread
     public boolean lineHasInsertion(int lineIndex) {
         return isInsertionLine(lineIndex + 1);
     }
     
     //!
-    @UseFromUIThread
     public boolean isInsertionLine(int lineIndex) {
         if (getLineCount() <= lineIndex)
             return false;
         return (getLine(lineIndex).equals(insertionPlaceholder()));
     }
     
-    @UseFromUIThread
     private void updateMetrics(int offset, Point size) {
         StyleRange style = new StyleRange();
         style.start = offset;
@@ -226,7 +218,6 @@ public class YourSwayStyledTextInternal extends StyledText {
         showSelection(); //? when
     }
     
-    @UseFromUIThread
     void selectInsertionLineEnd() {
         if (!lineHasInsertion())
             throw new AssertionError("Selected line must have an insertion.");
@@ -236,7 +227,6 @@ public class YourSwayStyledTextInternal extends StyledText {
     }
     
     //?
-    @UseFromUIThread
     public Point selectedLines() {
         Point sel = getSelection();
         int firstLine = getLineAtOffset(sel.x);
@@ -246,24 +236,20 @@ public class YourSwayStyledTextInternal extends StyledText {
         return new Point(firstLine, lastLine);
     }
     
-    @UseFromUIThread
     public boolean inInsertionLine() {
         return isInsertionLine(caretLine());
     }
     
-    @UseFromUIThread
     public void moveCaretFromInsertionLine(boolean selection) {
         if (inInsertionLine())
             moveCaret(selection, atLineBegin() ? -1 : inLastLine() ? -2 : 1);
     }
     
     //?
-    @UseFromUIThread
     public int caretLine() {
         return getLineAtOffset(getCaretOffset());
     }
     
-    @UseFromUIThread
     private void moveCaret(boolean selection, int where) {
         if (selection) {
             Point sel = getSelection();
@@ -276,18 +262,15 @@ public class YourSwayStyledTextInternal extends StyledText {
         }
     }
     
-    @UseFromUIThread
     private boolean caretAtSelectionEnd() {
         return getCaretOffset() == getSelection().y;
     }
     
-    @UseFromUIThread
     boolean atLineBegin() {
         int offset = getOffsetAtLine(caretLine());
         return getCaretOffset() == offset;
     }
     
-    @UseFromUIThread
     boolean inLastLine() {
         return caretLine() == getLineCount() - 1;
     }

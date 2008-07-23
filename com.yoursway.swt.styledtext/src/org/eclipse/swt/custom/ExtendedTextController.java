@@ -12,6 +12,9 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
     private final YourSwayStyledTextInternal view;
     
     public ExtendedTextController(YourSwayStyledTextInternal view) {
+        if (view == null)
+            throw new NullPointerException("view is null");
+        
         this.view = view;
         
     }
