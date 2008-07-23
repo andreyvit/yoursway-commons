@@ -1,14 +1,11 @@
 package org.eclipse.swt.custom;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ST;
-import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.VerifyEvent;
-
 
 public class ExtendedTextController implements VerifyKeyListener, KeyListener, MouseListener {
     

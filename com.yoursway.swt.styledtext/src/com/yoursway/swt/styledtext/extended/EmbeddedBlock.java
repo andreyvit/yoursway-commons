@@ -1,4 +1,4 @@
-package com.yoursway.swt.styledtext.insertions;
+package com.yoursway.swt.styledtext.extended;
 
 import org.eclipse.swt.widgets.Composite;
 

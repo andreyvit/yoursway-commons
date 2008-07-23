@@ -1,11 +1,11 @@
-package com.yoursway.swt.styledtext.insertions.internal;
+package com.yoursway.swt.styledtext.extended.internal;
 
 import org.eclipse.swt.custom.YourSwayStyledTextInternal;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
-import com.yoursway.swt.styledtext.insertions.EmbeddedBlock;
+import com.yoursway.swt.styledtext.extended.EmbeddedBlock;
 import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
