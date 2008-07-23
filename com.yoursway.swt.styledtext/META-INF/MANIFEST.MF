@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: StyledText
+Bundle-SymbolicName: com.yoursway.swt.styledtext
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.swt;bundle-version="3.5.0",
+ com.yoursway.utils;bundle-version="1.0.0"
+Export-Package: com.yoursway.swt.styledtext.insertions
+Export-Package: com.yoursway.swt.styledtext.insertions
