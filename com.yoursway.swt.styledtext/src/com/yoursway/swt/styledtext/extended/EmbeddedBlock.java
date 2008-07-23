@@ -8,7 +8,7 @@ import com.yoursway.utils.annotations.UseFromUIThread;
 @UseFromUIThread
 public interface EmbeddedBlock {
     
-    void init(Composite composite, YourSwayStyledTextEventSource la);
+    void init(Composite composite, EmbeddedBlockSite site);
     
     void redraw();
     

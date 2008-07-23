@@ -9,16 +9,16 @@ import com.yoursway.swt.styledtext.extended.EmbeddedBlock;
 import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
-public class EmbeddedBlockSite {
+public class EmbeddedBlockPlace {
     
-    private final EmbeddedBlock content;
+    private final EmbeddedBlock block;
     private int offset;
     private final Composite composite;
     
     private final YourSwayStyledTextInternal extendedText;
     
     @UseFromUIThread
-    public EmbeddedBlockSite(EmbeddedBlock content, int offset, Composite composite,
+    public EmbeddedBlockPlace(EmbeddedBlock content, int offset, Composite composite,
             YourSwayStyledTextInternal extendedText) {
         if (content == null)
             throw new NullPointerException("content is null");
@@ -27,7 +27,7 @@ public class EmbeddedBlockSite {
         if (extendedText == null)
             throw new NullPointerException("extendedText is null");
         
-        this.content = content;
+        this.block = content;
         this.offset = offset;
         this.composite = composite;
         
@@ -46,8 +46,8 @@ public class EmbeddedBlockSite {
     }
     
     @UseFromAnyThread
-    public EmbeddedBlock content() {
-        return content;
+    public EmbeddedBlock block() {
+        return block;
     }
     
     @UseFromUIThread
@@ -62,14 +62,14 @@ public class EmbeddedBlockSite {
             setLocation(location.x, location.y);
             
             composite.redraw();
-            content.redraw(); //? ineffective //> don't do it every time
+            block.redraw(); //? ineffective //> don't do it every time
         }
     }
     
     @UseFromUIThread
     public void dispose() {
-        if (!content.isDisposed())
-            content.dispose();
+        if (!block.isDisposed())
+            block.dispose();
         if (!composite.isDisposed())
             composite.dispose();
     }

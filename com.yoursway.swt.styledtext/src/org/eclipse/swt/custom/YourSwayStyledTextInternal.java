@@ -9,21 +9,23 @@ import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
+import com.yoursway.swt.additions.YsSwtGeometry;
 import com.yoursway.swt.styledtext.extended.EmbeddedBlock;
+import com.yoursway.swt.styledtext.extended.EmbeddedBlockSite;
 import com.yoursway.swt.styledtext.extended.ResizeListener;
-import com.yoursway.swt.styledtext.extended.YourSwayStyledTextEventSource;
-import com.yoursway.swt.styledtext.extended.internal.EmbeddedBlockSite;
+import com.yoursway.swt.styledtext.extended.internal.EmbeddedBlockPlace;
 import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
 @UseFromUIThread
 public class YourSwayStyledTextInternal extends StyledText {
     
-    private final Collection<EmbeddedBlockSite> blockSites = new LinkedList<EmbeddedBlockSite>();
+    private final Collection<EmbeddedBlockPlace> blockPlaces = new LinkedList<EmbeddedBlockPlace>();
     
     private final Collection<ResizeListener> resizeListeners = new LinkedList<ResizeListener>();
     
@@ -36,17 +38,17 @@ public class YourSwayStyledTextInternal extends StyledText {
                 int replaceCharCount = e.end - e.start;
                 int newCharCount = e.text.length();
                 
-                Iterator<EmbeddedBlockSite> it = blockSites.iterator();
+                Iterator<EmbeddedBlockPlace> it = blockPlaces.iterator();
                 while (it.hasNext()) {
-                    EmbeddedBlockSite insertion = it.next();
-                    int offset = insertion.offset();
+                    EmbeddedBlockPlace blockPlace = it.next();
+                    int offset = blockPlace.offset();
                     
                     if (start <= offset && offset < start + replaceCharCount) {
-                        insertion.dispose();
+                        blockPlace.dispose();
                         it.remove();
                     } else if (offset >= start) {
                         offset += newCharCount - replaceCharCount;
-                        insertion.offset(offset);
+                        blockPlace.offset(offset);
                     }
                 }
             }
@@ -55,16 +57,15 @@ public class YourSwayStyledTextInternal extends StyledText {
             public void paintObject(PaintObjectEvent e) {
                 int offset = e.style.start;
                 
-                for (EmbeddedBlockSite insertion : blockSites) {
-                    if (offset == insertion.offset()) {
-                        insertion.updateLocation();
+                for (EmbeddedBlockPlace blockPlace : blockPlaces) {
+                    if (offset == blockPlace.offset()) {
+                        blockPlace.updateLocation();
                         break;
                     }
                 }
             }
         });
         addControlListener(new ControlListener() {
-            
             public void controlMoved(ControlEvent e) {
                 // nothing
             }
@@ -92,9 +93,9 @@ public class YourSwayStyledTextInternal extends StyledText {
     boolean scrollVertical(int pixels, boolean adjustScrollBar) {
         boolean scrolled = super.scrollVertical(pixels, adjustScrollBar);
         
-        for (EmbeddedBlockSite insertion : blockSites) {
-            Point loc = insertion.getLocation();
-            insertion.setLocation(loc.x, loc.y - pixels);
+        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
+            Point loc = blockPlace.getLocation();
+            blockPlace.setLocation(loc.x, loc.y - pixels);
         }
         
         return scrolled;
@@ -104,9 +105,9 @@ public class YourSwayStyledTextInternal extends StyledText {
     boolean scrollHorizontal(int pixels, boolean adjustScrollBar) {
         boolean scrolled = super.scrollHorizontal(pixels, adjustScrollBar);
         
-        for (EmbeddedBlockSite insertion : blockSites) {
-            Point loc = insertion.getLocation();
-            insertion.setLocation(loc.x - pixels, loc.y);
+        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
+            Point loc = blockPlace.getLocation();
+            blockPlace.setLocation(loc.x - pixels, loc.y);
         }
         
         return scrolled;
@@ -116,10 +117,10 @@ public class YourSwayStyledTextInternal extends StyledText {
     void scrollText(int srcY, int destY) {
         super.scrollText(srcY, destY);
         
-        for (EmbeddedBlockSite insertion : blockSites) {
-            Point loc = insertion.getLocation();
+        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
+            Point loc = blockPlace.getLocation();
             if (loc.y >= srcY)
-                insertion.setLocation(loc.x, loc.y + destY - srcY);
+                blockPlace.setLocation(loc.x, loc.y + destY - srcY);
         }
     }
     
@@ -141,8 +142,8 @@ public class YourSwayStyledTextInternal extends StyledText {
         offset++; // "\n"
         final Composite composite = new Composite(this, SWT.NO_FOCUS | SWT.NO_BACKGROUND);
         
-        final EmbeddedBlockSite site = new EmbeddedBlockSite(block, offset, composite, this);
-        blockSites.add(site);
+        final EmbeddedBlockPlace blockPlace = new EmbeddedBlockPlace(block, offset, composite, this);
+        blockPlaces.add(blockPlace);
         
         composite.addControlListener(new ControlListener() {
             public void controlMoved(ControlEvent e) {
@@ -150,11 +151,19 @@ public class YourSwayStyledTextInternal extends StyledText {
             }
             
             public void controlResized(ControlEvent e) {
-                updateMetrics(site.offset(), composite.getSize());
+                updateMetrics(blockPlace.offset(), composite.getSize());
             }
         });
         
-        block.init(composite, new YourSwayStyledTextEventSource() {
+        block.init(composite, new EmbeddedBlockSite() {
+            public Color getBackground() {
+                return YourSwayStyledTextInternal.this.getBackground();
+            }
+            
+            public Point clientAreaSize() {
+                return YsSwtGeometry.size(getClientArea());
+            }
+            
             public void addResizeListener(ResizeListener listener) {
                 resizeListeners.add(listener);
             }
@@ -167,41 +176,41 @@ public class YourSwayStyledTextInternal extends StyledText {
         return lineOffset + lineLength;
     }
     
-    public EmbeddedBlock existingInsertion(int lineIndex) {
+    public EmbeddedBlock existingEmbeddedBlock(int lineIndex) {
         int offset = lineEndOffset(lineIndex) + 1;
-        for (EmbeddedBlockSite insertion : blockSites) {
-            if (insertion.offset() == offset)
-                return insertion.content();
+        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
+            if (blockPlace.offset() == offset)
+                return blockPlace.block();
         }
         return null;
     }
     
-    public boolean removeInsertion(int lineIndex) {
-        if (!lineHasInsertion(lineIndex))
+    public boolean removeEmbeddedBlock(int lineIndex) {
+        if (!lineHasEmbeddedBlock(lineIndex))
             return false;
         
-        int s = blockSites.size();
+        int s = blockPlaces.size();
         
         int offset = lineEndOffset(lineIndex);
         //! must be 2 == ("\n" + insertionPlaceholder()).length()
         replaceTextRange(offset, 2, "");
         
-        if (blockSites.size() != s - 1)
+        if (blockPlaces.size() != s - 1)
             throw new AssertionError("Insertion object hasn't been removed from collection.");
         
         return true;
     }
     
     boolean lineHasInsertion() {
-        return lineHasInsertion(selectedLines().y);
+        return lineHasEmbeddedBlock(selectedLines().y);
     }
     
-    public boolean lineHasInsertion(int lineIndex) {
-        return isInsertionLine(lineIndex + 1);
+    public boolean lineHasEmbeddedBlock(int lineIndex) {
+        return isEmbeddedBlockLine(lineIndex + 1);
     }
     
     //!
-    public boolean isInsertionLine(int lineIndex) {
+    public boolean isEmbeddedBlockLine(int lineIndex) {
         if (getLineCount() <= lineIndex)
             return false;
         return (getLine(lineIndex).equals(insertionPlaceholder()));
@@ -237,7 +246,7 @@ public class YourSwayStyledTextInternal extends StyledText {
     }
     
     public boolean inInsertionLine() {
-        return isInsertionLine(caretLine());
+        return isEmbeddedBlockLine(caretLine());
     }
     
     public void moveCaretFromInsertionLine(boolean selection) {
