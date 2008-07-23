@@ -13,10 +13,10 @@ import org.eclipse.swt.graphics.GlyphMetrics;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
-import com.yoursway.swt.styledtext.insertions.EmbeddedBlock;
-import com.yoursway.swt.styledtext.insertions.ResizeListener;
-import com.yoursway.swt.styledtext.insertions.YourSwayStyledTextEventSource;
-import com.yoursway.swt.styledtext.insertions.internal.EmbeddedBlockSite;
+import com.yoursway.swt.styledtext.extended.EmbeddedBlock;
+import com.yoursway.swt.styledtext.extended.ResizeListener;
+import com.yoursway.swt.styledtext.extended.YourSwayStyledTextEventSource;
+import com.yoursway.swt.styledtext.extended.internal.EmbeddedBlockSite;
 import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
