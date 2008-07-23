@@ -99,7 +99,7 @@ public class ExtendedStyledText {
     
     private int internalLineIndex(int externalLineIndex) {
         int internalLineIndex = externalLineIndex + insertionLinesAbove(externalLineIndex, true);
-        if (internal.isInsertionLine(internalLineIndex))
+        if (internal.isEmbeddedBlockLine(internalLineIndex))
             throw new AssertionError("External line can't be insertion line.");
         return internalLineIndex;
     }
@@ -108,7 +108,7 @@ public class ExtendedStyledText {
         int workingLineIndex = lineIndex;
         int count = 0;
         for (int i = 0; i <= workingLineIndex; i++) {
-            if (internal.isInsertionLine(i)) {
+            if (internal.isEmbeddedBlockLine(i)) {
                 count++;
                 if (external)
                     workingLineIndex++;
@@ -160,7 +160,7 @@ public class ExtendedStyledText {
         internal.setFont(font);
     }
     
-    public void addBlock(int lineIndex, EmbeddedBlock block) {
+    public void addEmbeddedBlock(int lineIndex, EmbeddedBlock block) {
         internal.addEmbeddedBlock(internalLineIndex(lineIndex), block);
     }
     
@@ -169,7 +169,7 @@ public class ExtendedStyledText {
     }
     
     public EmbeddedBlock existingInsertion(int lineIndex) {
-        return internal.existingInsertion(internalLineIndex(lineIndex));
+        return internal.existingEmbeddedBlock(internalLineIndex(lineIndex));
     }
     
     public int getCharCount() {
@@ -185,11 +185,11 @@ public class ExtendedStyledText {
     }
     
     public boolean lineHasInsertion(int lineIndex) {
-        return internal.lineHasInsertion(internalLineIndex(lineIndex));
+        return internal.lineHasEmbeddedBlock(internalLineIndex(lineIndex));
     }
     
     public boolean removeInsertion(int lineIndex) {
-        return internal.removeInsertion(internalLineIndex(lineIndex));
+        return internal.removeEmbeddedBlock(internalLineIndex(lineIndex));
     }
     
     public String getText(int start, int end) {

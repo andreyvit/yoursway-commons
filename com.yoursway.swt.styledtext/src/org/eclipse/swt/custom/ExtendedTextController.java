@@ -31,7 +31,7 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
 
         else if (e.keyCode == SWT.DEL) {
             if (view.lineHasInsertion() && atLineEnd())
-                view.removeInsertion(view.caretLine());
+                view.removeEmbeddedBlock(view.caretLine());
         }
 
         else if (e.character == '\b') {
@@ -91,8 +91,8 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
     private void removePrevLineInserionIfExists() {
         int prevLine = view.caretLine() - 2;
         if (prevLine >= 0) {
-            if (view.lineHasInsertion(prevLine))
-                view.removeInsertion(prevLine);
+            if (view.lineHasEmbeddedBlock(prevLine))
+                view.removeEmbeddedBlock(prevLine);
         }
     }
     

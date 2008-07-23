@@ -1,11 +1,16 @@
 package com.yoursway.swt.additions;
 
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 
 public class YsSwtGeometry {
     
     public static boolean isSameSize(Rectangle a, Rectangle b) {
         return a.width == b.width && a.height == b.height;
+    }
+    
+    public static Point size(Rectangle r) {
+        return new Point(r.width, r.height);
     }
     
     public static Rectangle duplicate(Rectangle r) {
@@ -29,9 +34,11 @@ public class YsSwtGeometry {
     }
     
     /**
-     * It's safe to pass <code>source</code> as <code>piece</code> or <code>remainder</code>.
+     * It's safe to pass <code>source</code> as <code>piece</code> or
+     * <code>remainder</code>.
      */
-    public static void divideIntoVerticalParts(Rectangle source, double ratio, Rectangle piece, Rectangle remainder) {
+    public static void divideIntoVerticalParts(Rectangle source, double ratio, Rectangle piece,
+            Rectangle remainder) {
         piece.y = remainder.y = source.y;
         piece.height = remainder.height = source.height;
         
@@ -44,9 +51,11 @@ public class YsSwtGeometry {
     }
     
     /**
-     * It's safe to pass <code>source</code> as <code>piece</code> or <code>remainder</code>.
+     * It's safe to pass <code>source</code> as <code>piece</code> or
+     * <code>remainder</code>.
      */
-    public static void divideIntoHorizontalParts(Rectangle source, double ratio, Rectangle piece, Rectangle remainder) {
+    public static void divideIntoHorizontalParts(Rectangle source, double ratio, Rectangle piece,
+            Rectangle remainder) {
         piece.x = remainder.x = source.x;
         piece.width = remainder.width = source.width;
         
