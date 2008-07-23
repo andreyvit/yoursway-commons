@@ -143,6 +143,7 @@ public class SizeAndAlphaAnimation {
         return f;
     }
     
+    @UseFromAnyThread
     public void instantWidth() {
         updater.updateSize(targetWidth, height);
         synchronized (this) {
@@ -151,6 +152,7 @@ public class SizeAndAlphaAnimation {
         }
     }
     
+    @UseFromAnyThread
     public void dispose() {
         if (isDisposed())
             return;
@@ -158,6 +160,7 @@ public class SizeAndAlphaAnimation {
         disposed = true;
     }
     
+    @UseFromAnyThread
     public boolean isDisposed() {
         return disposed;
     }
