@@ -1,6 +1,8 @@
 package com.yoursway.swt.styledtext.extended.internal;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.YourSwayStyledTextInternal;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
@@ -18,8 +20,7 @@ public class InsetPlace {
     private final YourSwayStyledTextInternal extendedText;
     
     @UseFromUIThread
-    public InsetPlace(Inset inset, int offset, Composite composite,
-            YourSwayStyledTextInternal extendedText) {
+    public InsetPlace(Inset inset, int offset, Composite composite, YourSwayStyledTextInternal extendedText) {
         if (inset == null)
             throw new NullPointerException("inset is null");
         if (composite == null)
@@ -32,6 +33,8 @@ public class InsetPlace {
         this.composite = composite;
         
         this.extendedText = extendedText;
+        
+        composite.setCursor(new Cursor(composite.getDisplay(), SWT.CURSOR_ARROW));
         
         updateLocation();
     }
