@@ -6,9 +6,9 @@ import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
 @UseFromUIThread
-public interface EmbeddedBlock {
+public interface Inset {
     
-    void init(Composite composite, EmbeddedBlockSite site);
+    void init(Composite composite, InsetSite site);
     
     void redraw();
     

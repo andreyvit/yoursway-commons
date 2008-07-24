@@ -3,7 +3,7 @@ package com.yoursway.swt.styledtext.extended;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 
-public interface EmbeddedBlockSite {
+public interface InsetSite {
     
     Color getBackground();
     

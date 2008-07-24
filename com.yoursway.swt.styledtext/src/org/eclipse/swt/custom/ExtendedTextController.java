@@ -22,21 +22,21 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
     public void verifyKey(VerifyEvent e) {
         
         if (e.character == '\n' || e.character == '\r') {
-            if (view.lineHasInsertion()) {
+            if (view.lineHasInset()) {
                 if (atLineEnd())
-                    view.selectInsertionLineEnd();
+                    view.selectInsetLineEnd();
                 //? else view.removeInsertion(view.caretLine());
             }
         }
 
         else if (e.keyCode == SWT.DEL) {
-            if (view.lineHasInsertion() && atLineEnd())
-                view.removeEmbeddedBlock(view.caretLine());
+            if (view.lineHasInset() && atLineEnd())
+                view.removeInset(view.caretLine());
         }
 
         else if (e.character == '\b') {
             if (view.atLineBegin() && !lineEmpty())
-                removePrevLineInserionIfExists();
+                removePrevLineInsetIfExists();
         }
 
         else {
@@ -45,7 +45,7 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
     }
     
     public void keyPressed(KeyEvent e) {
-        if (view.inInsertionLine()) {
+        if (view.inInsetLine()) {
             boolean selection = ((e.stateMask & SWT.SHIFT) == SWT.SHIFT);
             
             if (e.keyCode == SWT.ARROW_UP || e.keyCode == SWT.ARROW_LEFT || e.character == '\b') {
@@ -77,22 +77,22 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
     }
     
     public void mouseDown(MouseEvent e) {
-        view.moveCaretFromInsertionLine(false);
+        view.moveCaretFromInsetLine(false);
     }
     
     public void mouseUp(MouseEvent e) {
-        view.moveCaretFromInsertionLine(true);
+        view.moveCaretFromInsetLine(true);
     }
     
     private boolean lineEmpty() {
         return view.getLine(view.caretLine()).length() == 0;
     }
     
-    private void removePrevLineInserionIfExists() {
+    private void removePrevLineInsetIfExists() {
         int prevLine = view.caretLine() - 2;
         if (prevLine >= 0) {
-            if (view.lineHasEmbeddedBlock(prevLine))
-                view.removeEmbeddedBlock(prevLine);
+            if (view.lineHasInset(prevLine))
+                view.removeInset(prevLine);
         }
     }
     

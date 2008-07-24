@@ -5,29 +5,29 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
-import com.yoursway.swt.styledtext.extended.EmbeddedBlock;
+import com.yoursway.swt.styledtext.extended.Inset;
 import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
-public class EmbeddedBlockPlace {
+public class InsetPlace {
     
-    private final EmbeddedBlock block;
+    private final Inset inset;
     private int offset;
     private final Composite composite;
     
     private final YourSwayStyledTextInternal extendedText;
     
     @UseFromUIThread
-    public EmbeddedBlockPlace(EmbeddedBlock content, int offset, Composite composite,
+    public InsetPlace(Inset inset, int offset, Composite composite,
             YourSwayStyledTextInternal extendedText) {
-        if (content == null)
-            throw new NullPointerException("content is null");
+        if (inset == null)
+            throw new NullPointerException("inset is null");
         if (composite == null)
             throw new NullPointerException("composite is null");
         if (extendedText == null)
             throw new NullPointerException("extendedText is null");
         
-        this.block = content;
+        this.inset = inset;
         this.offset = offset;
         this.composite = composite;
         
@@ -46,8 +46,8 @@ public class EmbeddedBlockPlace {
     }
     
     @UseFromAnyThread
-    public EmbeddedBlock block() {
-        return block;
+    public Inset inset() {
+        return inset;
     }
     
     @UseFromUIThread
@@ -62,14 +62,14 @@ public class EmbeddedBlockPlace {
             setLocation(location.x, location.y);
             
             composite.redraw();
-            block.redraw(); //? ineffective //> don't do it every time
+            inset.redraw(); //? ineffective //> don't do it every time
         }
     }
     
     @UseFromUIThread
     public void dispose() {
-        if (!block.isDisposed())
-            block.dispose();
+        if (!inset.isDisposed())
+            inset.dispose();
         if (!composite.isDisposed())
             composite.dispose();
     }

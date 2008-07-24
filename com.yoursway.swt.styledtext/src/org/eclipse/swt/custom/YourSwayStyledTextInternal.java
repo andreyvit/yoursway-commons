@@ -15,17 +15,17 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 
 import com.yoursway.swt.additions.YsSwtGeometry;
-import com.yoursway.swt.styledtext.extended.EmbeddedBlock;
-import com.yoursway.swt.styledtext.extended.EmbeddedBlockSite;
+import com.yoursway.swt.styledtext.extended.Inset;
+import com.yoursway.swt.styledtext.extended.InsetSite;
 import com.yoursway.swt.styledtext.extended.ResizeListener;
-import com.yoursway.swt.styledtext.extended.internal.EmbeddedBlockPlace;
+import com.yoursway.swt.styledtext.extended.internal.InsetPlace;
 import com.yoursway.utils.annotations.UseFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
 @UseFromUIThread
 public class YourSwayStyledTextInternal extends StyledText {
     
-    private final Collection<EmbeddedBlockPlace> blockPlaces = new LinkedList<EmbeddedBlockPlace>();
+    private final Collection<InsetPlace> insetPlaces = new LinkedList<InsetPlace>();
     
     private final Collection<ResizeListener> resizeListeners = new LinkedList<ResizeListener>();
     
@@ -38,17 +38,17 @@ public class YourSwayStyledTextInternal extends StyledText {
                 int replaceCharCount = e.end - e.start;
                 int newCharCount = e.text.length();
                 
-                Iterator<EmbeddedBlockPlace> it = blockPlaces.iterator();
+                Iterator<InsetPlace> it = insetPlaces.iterator();
                 while (it.hasNext()) {
-                    EmbeddedBlockPlace blockPlace = it.next();
-                    int offset = blockPlace.offset();
+                    InsetPlace insetPlace = it.next();
+                    int offset = insetPlace.offset();
                     
                     if (start <= offset && offset < start + replaceCharCount) {
-                        blockPlace.dispose();
+                        insetPlace.dispose();
                         it.remove();
                     } else if (offset >= start) {
                         offset += newCharCount - replaceCharCount;
-                        blockPlace.offset(offset);
+                        insetPlace.offset(offset);
                     }
                 }
             }
@@ -57,9 +57,9 @@ public class YourSwayStyledTextInternal extends StyledText {
             public void paintObject(PaintObjectEvent e) {
                 int offset = e.style.start;
                 
-                for (EmbeddedBlockPlace blockPlace : blockPlaces) {
-                    if (offset == blockPlace.offset()) {
-                        blockPlace.updateLocation();
+                for (InsetPlace insetPlace : insetPlaces) {
+                    if (offset == insetPlace.offset()) {
+                        insetPlace.updateLocation();
                         break;
                     }
                 }
@@ -93,9 +93,9 @@ public class YourSwayStyledTextInternal extends StyledText {
     boolean scrollVertical(int pixels, boolean adjustScrollBar) {
         boolean scrolled = super.scrollVertical(pixels, adjustScrollBar);
         
-        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
-            Point loc = blockPlace.getLocation();
-            blockPlace.setLocation(loc.x, loc.y - pixels);
+        for (InsetPlace insetPlace : insetPlaces) {
+            Point loc = insetPlace.getLocation();
+            insetPlace.setLocation(loc.x, loc.y - pixels);
         }
         
         return scrolled;
@@ -105,9 +105,9 @@ public class YourSwayStyledTextInternal extends StyledText {
     boolean scrollHorizontal(int pixels, boolean adjustScrollBar) {
         boolean scrolled = super.scrollHorizontal(pixels, adjustScrollBar);
         
-        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
-            Point loc = blockPlace.getLocation();
-            blockPlace.setLocation(loc.x - pixels, loc.y);
+        for (InsetPlace insetPlace : insetPlaces) {
+            Point loc = insetPlace.getLocation();
+            insetPlace.setLocation(loc.x - pixels, loc.y);
         }
         
         return scrolled;
@@ -117,33 +117,33 @@ public class YourSwayStyledTextInternal extends StyledText {
     void scrollText(int srcY, int destY) {
         super.scrollText(srcY, destY);
         
-        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
-            Point loc = blockPlace.getLocation();
+        for (InsetPlace insetPlace : insetPlaces) {
+            Point loc = insetPlace.getLocation();
             if (loc.y >= srcY)
-                blockPlace.setLocation(loc.x, loc.y + destY - srcY);
+                insetPlace.setLocation(loc.x, loc.y + destY - srcY);
         }
     }
     
     @UseFromAnyThread
-    public String insertionPlaceholder() {
+    public String insetPlaceholder() {
         return "\uFFFC";
     }
     
     @UseFromAnyThread
-    private int insertionPlaceholderLength() throws AssertionError {
-        if (insertionPlaceholder().length() != 1)
-            throw new AssertionError("An insertion placeholder must have 1 char length.");
+    private int insetPlaceholderLength() throws AssertionError {
+        if (insetPlaceholder().length() != 1)
+            throw new AssertionError("An inset placeholder must have 1 char length.");
         return 1;
     }
     
-    public void addEmbeddedBlock(int lineIndex, final EmbeddedBlock block) {
+    public void addInset(int lineIndex, final Inset inset) {
         int offset = lineEndOffset(lineIndex);
-        replaceTextRange(offset, 0, "\n" + insertionPlaceholder());
+        replaceTextRange(offset, 0, "\n" + insetPlaceholder());
         offset++; // "\n"
         final Composite composite = new Composite(this, SWT.NO_FOCUS | SWT.NO_BACKGROUND);
         
-        final EmbeddedBlockPlace blockPlace = new EmbeddedBlockPlace(block, offset, composite, this);
-        blockPlaces.add(blockPlace);
+        final InsetPlace insetPlace = new InsetPlace(inset, offset, composite, this);
+        insetPlaces.add(insetPlace);
         
         composite.addControlListener(new ControlListener() {
             public void controlMoved(ControlEvent e) {
@@ -151,11 +151,11 @@ public class YourSwayStyledTextInternal extends StyledText {
             }
             
             public void controlResized(ControlEvent e) {
-                updateMetrics(blockPlace.offset(), composite.getSize());
+                updateMetrics(insetPlace.offset(), composite.getSize());
             }
         });
         
-        block.init(composite, new EmbeddedBlockSite() {
+        inset.init(composite, new InsetSite() {
             public Color getBackground() {
                 return YourSwayStyledTextInternal.this.getBackground();
             }
@@ -176,50 +176,50 @@ public class YourSwayStyledTextInternal extends StyledText {
         return lineOffset + lineLength;
     }
     
-    public EmbeddedBlock existingEmbeddedBlock(int lineIndex) {
+    public Inset existingInset(int lineIndex) {
         int offset = lineEndOffset(lineIndex) + 1;
-        for (EmbeddedBlockPlace blockPlace : blockPlaces) {
-            if (blockPlace.offset() == offset)
-                return blockPlace.block();
+        for (InsetPlace insetPlace : insetPlaces) {
+            if (insetPlace.offset() == offset)
+                return insetPlace.inset();
         }
         return null;
     }
     
-    public boolean removeEmbeddedBlock(int lineIndex) {
-        if (!lineHasEmbeddedBlock(lineIndex))
+    public boolean removeInset(int lineIndex) {
+        if (!lineHasInset(lineIndex))
             return false;
         
-        int s = blockPlaces.size();
+        int s = insetPlaces.size();
         
         int offset = lineEndOffset(lineIndex);
         //! must be 2 == ("\n" + insertionPlaceholder()).length()
         replaceTextRange(offset, 2, "");
         
-        if (blockPlaces.size() != s - 1)
-            throw new AssertionError("Insertion object hasn't been removed from collection.");
+        if (insetPlaces.size() != s - 1)
+            throw new AssertionError("Inset object hasn't been removed from collection.");
         
         return true;
     }
     
-    boolean lineHasInsertion() {
-        return lineHasEmbeddedBlock(selectedLines().y);
+    boolean lineHasInset() {
+        return lineHasInset(selectedLines().y);
     }
     
-    public boolean lineHasEmbeddedBlock(int lineIndex) {
-        return isEmbeddedBlockLine(lineIndex + 1);
+    public boolean lineHasInset(int lineIndex) {
+        return isInsetLine(lineIndex + 1);
     }
     
     //!
-    public boolean isEmbeddedBlockLine(int lineIndex) {
+    public boolean isInsetLine(int lineIndex) {
         if (getLineCount() <= lineIndex)
             return false;
-        return (getLine(lineIndex).equals(insertionPlaceholder()));
+        return (getLine(lineIndex).equals(insetPlaceholder()));
     }
     
     private void updateMetrics(int offset, Point size) {
         StyleRange style = new StyleRange();
         style.start = offset;
-        style.length = insertionPlaceholderLength();
+        style.length = insetPlaceholderLength();
         int width = size.x - (size.x > 20 ? 20 : 0); // hack
         style.metrics = new GlyphMetrics(size.y, 0, width);
         setStyleRange(style);
@@ -228,9 +228,9 @@ public class YourSwayStyledTextInternal extends StyledText {
             showSelection();
     }
     
-    void selectInsertionLineEnd() {
-        if (!lineHasInsertion())
-            throw new AssertionError("Selected line must have an insertion.");
+    void selectInsetLineEnd() {
+        if (!lineHasInset())
+            throw new AssertionError("Selected line must have an inset.");
         
         int offset = lineEndOffset(selectedLines().y + 1);
         setSelection(offset);
@@ -246,12 +246,12 @@ public class YourSwayStyledTextInternal extends StyledText {
         return new Point(firstLine, lastLine);
     }
     
-    public boolean inInsertionLine() {
-        return isEmbeddedBlockLine(caretLine());
+    public boolean inInsetLine() {
+        return isInsetLine(caretLine());
     }
     
-    public void moveCaretFromInsertionLine(boolean selection) {
-        if (inInsertionLine())
+    void moveCaretFromInsetLine(boolean selection) {
+        if (inInsetLine())
             moveCaret(selection, atLineBegin() ? -1 : inLastLine() ? -2 : 1);
     }
     
