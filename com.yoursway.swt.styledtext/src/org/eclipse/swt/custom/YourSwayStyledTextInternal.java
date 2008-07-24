@@ -224,7 +224,8 @@ public class YourSwayStyledTextInternal extends StyledText {
         style.metrics = new GlyphMetrics(size.y, 0, width);
         setStyleRange(style);
         
-        showSelection(); //? when
+        if (getCaretOffset() == offset + 2) //! magic
+            showSelection();
     }
     
     void selectInsertionLineEnd() {
