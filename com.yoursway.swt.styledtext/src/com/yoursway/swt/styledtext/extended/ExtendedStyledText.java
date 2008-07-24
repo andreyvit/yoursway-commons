@@ -60,20 +60,20 @@ public class ExtendedStyledText {
                 int end = _start + _length - 1;
                 if (insertionAtEdge(_start, _length))
                     end--;
-                return withoutInsertions(internal.getText(_start, end));
+                return withoutInsets(internal.getText(_start, end));
             }
             
             private String replacedTextWithoutInsertions(String _replacedText, int _start, int _length) {
                 String text = _replacedText;
                 if (insertionAtEdge(_start, _length))
                     text = text.substring(0, text.length() - 1);
-                return withoutInsertions(text);
+                return withoutInsets(text);
             }
             
             private boolean insertionAtEdge(int _start, int _length) {
                 int i = _start + _length;
                 return (internal.getCharCount() > i)
-                        && (internal.getText(i, i).equals(internal.insertionPlaceholder()));
+                        && (internal.getText(i, i).equals(internal.insetPlaceholder()));
             }
             
         });
@@ -94,21 +94,21 @@ public class ExtendedStyledText {
     }
     
     private int externalLineIndex(int internalLineIndex) {
-        return internalLineIndex - insertionLinesAbove(internalLineIndex, false);
+        return internalLineIndex - insetLinesAbove(internalLineIndex, false);
     }
     
     private int internalLineIndex(int externalLineIndex) {
-        int internalLineIndex = externalLineIndex + insertionLinesAbove(externalLineIndex, true);
-        if (internal.isEmbeddedBlockLine(internalLineIndex))
+        int internalLineIndex = externalLineIndex + insetLinesAbove(externalLineIndex, true);
+        if (internal.isInsetLine(internalLineIndex))
             throw new AssertionError("External line can't be insertion line.");
         return internalLineIndex;
     }
     
-    private int insertionLinesAbove(int lineIndex, boolean external) {
+    private int insetLinesAbove(int lineIndex, boolean external) {
         int workingLineIndex = lineIndex;
         int count = 0;
         for (int i = 0; i <= workingLineIndex; i++) {
-            if (internal.isEmbeddedBlockLine(i)) {
+            if (internal.isInsetLine(i)) {
                 count++;
                 if (external)
                     workingLineIndex++;
@@ -121,7 +121,7 @@ public class ExtendedStyledText {
         //? ineffective //> by lines
         int workingOffset = externalOffset;
         String text = internal.getText();
-        char p = internal.insertionPlaceholder().charAt(0);
+        char p = internal.insetPlaceholder().charAt(0);
         for (int i = 0; i <= workingOffset; i++) {
             if (text.length() > i && text.charAt(i) == p) {
                 workingOffset += 2;
@@ -135,10 +135,10 @@ public class ExtendedStyledText {
         //? ineffective
         int workingOffset = internalOffset;
         String text = internal.getText();
-        char p = internal.insertionPlaceholder().charAt(0);
+        char p = internal.insetPlaceholder().charAt(0);
         if (text.length() > internalOffset && text.charAt(internalOffset) == p)
             workingOffset--;
-        return withoutInsertions(text.substring(0, workingOffset)).length();
+        return withoutInsets(text.substring(0, workingOffset)).length();
     }
     
     public int caretLine() {
@@ -160,16 +160,16 @@ public class ExtendedStyledText {
         internal.setFont(font);
     }
     
-    public void addEmbeddedBlock(int lineIndex, EmbeddedBlock block) {
-        internal.addEmbeddedBlock(internalLineIndex(lineIndex), block);
+    public void addInset(int lineIndex, Inset inset) {
+        internal.addInset(internalLineIndex(lineIndex), inset);
     }
     
     public void append(String string) {
         internal.append(string);
     }
     
-    public EmbeddedBlock existingInsertion(int lineIndex) {
-        return internal.existingEmbeddedBlock(internalLineIndex(lineIndex));
+    public Inset existingInset(int lineIndex) {
+        return internal.existingInset(internalLineIndex(lineIndex));
     }
     
     public int getCharCount() {
@@ -184,12 +184,12 @@ public class ExtendedStyledText {
         return caretLine() == getLineCount() - 1;
     }
     
-    public boolean lineHasInsertion(int lineIndex) {
-        return internal.lineHasEmbeddedBlock(internalLineIndex(lineIndex));
+    public boolean lineHasInset(int lineIndex) {
+        return internal.lineHasInset(internalLineIndex(lineIndex));
     }
     
-    public boolean removeInsertion(int lineIndex) {
-        return internal.removeEmbeddedBlock(internalLineIndex(lineIndex));
+    public boolean removeInset(int lineIndex) {
+        return internal.removeInset(internalLineIndex(lineIndex));
     }
     
     public String getText(int start, int end) {
@@ -197,12 +197,12 @@ public class ExtendedStyledText {
     }
     
     public String getSelectionText() {
-        return withoutInsertions(internal.getSelectionText());
+        return withoutInsets(internal.getSelectionText());
     }
     
     @UseFromAnyThread
-    private String withoutInsertions(String text) {
-        return text.replace("\n" + internal.insertionPlaceholder(), "");
+    private String withoutInsets(String text) {
+        return text.replace("\n" + internal.insetPlaceholder(), "");
     }
     
     public void setSelection(int start) {
@@ -215,7 +215,7 @@ public class ExtendedStyledText {
     
     public void lineDown() {
         internal.invokeAction(ST.LINE_DOWN);
-        if (internal.inInsertionLine())
+        if (internal.inInsetLine())
             internal.invokeAction(ST.LINE_DOWN);
     }
     
