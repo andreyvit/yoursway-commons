@@ -45,6 +45,7 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 					proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
 					if (list.getItems().length > 0)
 						list.show(new Rectangle(listLocation.x, listLocation.y, 200, 100));
+					event.doit = false;
 				} else {
 					String oldStr = text.getText();
 					oldKeyDownListener.handleEvent(event);
