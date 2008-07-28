@@ -1,6 +1,6 @@
 package com.yoursway.completion.gui;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -26,12 +26,12 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 	 * @param text
 	 *            text editor to enable completion for.
 	 */
-	public CompletionController(Shell parent, final StyledText text, final CompletionProposalsProvider proposalsProvider) {
-		if (parent == null || text == null || proposalsProvider == null)
+	public CompletionController(final StyledText text, final CompletionProposalsProvider proposalsProvider) {
+		if (text == null || proposalsProvider == null)
 			throw new IllegalArgumentException();
 
 		this.text = text;
-		this.list = new CompletionProposalsView(parent);
+		this.list = new CompletionProposalsView(text.getShell());
 
 		final Listener oldKeyDownListener = text.getListeners(SWT.KeyDown)[0];
 		text.removeListener(SWT.KeyDown, oldKeyDownListener);
@@ -91,7 +91,7 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 		return pt;
 	}
 
-	public void setProposals(Collection<CompletionProposal> proposals) {
+	public void setProposals(List<? extends CompletionProposal> proposals) {
 		String[] strings = new String[proposals.size()];
 		int i = 0;
 		for (CompletionProposal proposal : proposals) {

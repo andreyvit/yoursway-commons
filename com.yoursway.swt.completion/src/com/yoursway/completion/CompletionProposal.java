@@ -7,7 +7,5 @@ public interface CompletionProposal {
      * */
     String completetion();
     
-    int relevance();
-
     void acceptVisitor(CompletionProposalVisitor visitor);
 }

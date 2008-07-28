@@ -32,11 +32,11 @@ public class DictionaryCompletion implements CompletionProposalsProvider {
 		Collections.sort(words);
 	}
 
-	private List<CompletionProposal> proposalsList(String substring) {
-		List<CompletionProposal> proposals = new LinkedList<CompletionProposal>();
+	private List<CompletionProposalImpl> proposalsList(String substring) {
+		List<CompletionProposalImpl> proposals = new LinkedList<CompletionProposalImpl>();
 		System.out.println("filtering string is: " + substring);
 		for (String str : words) {
-			CompletionProposal newProposal = null;
+		    CompletionProposalImpl newProposal = null;
 			if (str.startsWith(substring))
 				newProposal = new CompletionProposalImpl(str, DEFAULT_PRIORITY);
 			else if (str.indexOf(substring) != -1)
@@ -54,10 +54,10 @@ public class DictionaryCompletion implements CompletionProposalsProvider {
 		int beginIndex = (source.lastIndexOf(' ') != -1) ? source.lastIndexOf(' ') + 1: 0;
 		String substring = source.substring(beginIndex, cursorIndex);
 
-		List<CompletionProposal> proposals = proposalsList(substring);
+		List<CompletionProposalImpl> proposals = proposalsList(substring);
 
-		Collections.sort(proposals, new Comparator<CompletionProposal>() {
-			public int compare(CompletionProposal o1, CompletionProposal o2) {
+		Collections.sort(proposals, new Comparator<CompletionProposalImpl>() {
+			public int compare(CompletionProposalImpl o1, CompletionProposalImpl o2) {
 				return o1.relevance() - o2.relevance();
 			}
 		});
