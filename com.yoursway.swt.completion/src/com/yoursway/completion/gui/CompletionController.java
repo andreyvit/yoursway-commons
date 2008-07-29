@@ -34,7 +34,7 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 		this.list = new CompletionProposalsView(text.getShell());
 
 		final Listener oldKeyDownListener = text.getListeners(SWT.KeyDown)[0];
-		text.removeListener(SWT.KeyDown, oldKeyDownListener);
+		text.removeListener(SWT.KeyDown, oldKeyDownListener); 
 		text.addListener(SWT.KeyDown, new Listener() {
 
 			public void handleEvent(Event event) {
@@ -44,7 +44,7 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 						return;
 					proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
 					if (list.getItems().length > 0)
-						list.show(new Rectangle(listLocation.x, listLocation.y, 200, 100));
+						list.show(new Rectangle(listLocation.x, listLocation.y, 200, 100),text);
 					event.doit = false;
 				} else {
 					String oldStr = text.getText();

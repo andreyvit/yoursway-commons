@@ -88,12 +88,12 @@ public class CompletionProposalsView {
 		}
 	}
 
-	synchronized public void show(Rectangle rect) {
+	synchronized public void show(Rectangle rect, Control focusedControl) {
 		shell.setBounds(rect);
 		list.setBounds(0, 0, shell.getBounds().width, shell.getBounds().height);
 		shell.open();
 		// list.setFocus();
-		shell.getParent().setFocus();
+		focusedControl.setFocus();
 
 		final Display display = shell.getDisplay();
 
