@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.yoursway.utils.annotations.UseFromAnyThread;
+import com.yoursway.utils.annotations.CallFromAnyThread_NonReentrant;
 
 public class SizeAndAlphaAnimation {
     
@@ -123,13 +123,13 @@ public class SizeAndAlphaAnimation {
         }
     }
     
-    @UseFromAnyThread
+    @CallFromAnyThread_NonReentrant
     public void targetSize(int width, int height) {
         targetWidth = width;
         targetHeight = height;
     }
     
-    @UseFromAnyThread
+    @CallFromAnyThread_NonReentrant
     public void targetAlpha(int alpha) {
         targetAlpha = alpha;
     }
@@ -143,7 +143,7 @@ public class SizeAndAlphaAnimation {
         return f;
     }
     
-    @UseFromAnyThread
+    @CallFromAnyThread_NonReentrant
     public void instantWidth() {
         updater.updateSize(targetWidth, height);
         synchronized (this) {
@@ -152,7 +152,7 @@ public class SizeAndAlphaAnimation {
         }
     }
     
-    @UseFromAnyThread
+    @CallFromAnyThread_NonReentrant
     public void dispose() {
         if (isDisposed())
             return;
@@ -160,7 +160,7 @@ public class SizeAndAlphaAnimation {
         disposed = true;
     }
     
-    @UseFromAnyThread
+    @CallFromAnyThread_NonReentrant
     public boolean isDisposed() {
         return disposed;
     }

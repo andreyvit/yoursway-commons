@@ -1,8 +1,8 @@
 package com.yoursway.swt.animations;
 
-import com.yoursway.utils.annotations.UseFromAnyThread;
+import com.yoursway.utils.annotations.CallFromAnyThread_NonReentrant;
 
-@UseFromAnyThread
+@CallFromAnyThread_NonReentrant
 public interface SizeAndAlphaAnimationApplier {
     
     void updateSize(int width, int height);
