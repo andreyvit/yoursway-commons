@@ -25,5 +25,9 @@ public class Bugs {
     public static void unknownErrorRecovery(Severity severity, Throwable error) {
         handler.error(severity, error, "unexpected error");
     }
+
+    public static void cleanupFailed(Throwable error, Object target) {
+        handler.error(UNKNOWN, error, null);
+    }
     
 }
