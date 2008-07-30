@@ -2,6 +2,8 @@ package com.yoursway.utils.bugs;
 
 import static com.yoursway.utils.bugs.Severity.UNKNOWN;
 
+import com.yoursway.utils.annotations.UsedFromGeneratedByteCode;
+
 public class Bugs {
     
     private static BugHandler handler = new DefaultBugHandler();
@@ -14,6 +16,7 @@ public class Bugs {
         handler.error(UNKNOWN, error, event);
     }
     
+    @UsedFromGeneratedByteCode
     public static void listenerFailed(Throwable error, Object listener) {
         listenerFailed(error, listener, null);
     }
