@@ -66,9 +66,9 @@ public class DependentCodeRunner {
                 Dependee dependee = entry.getKey();
                 DependeeState state = entry.getValue();
                 if (state.add)
-                    dependee.addListener(listener);
+                    dependee.dependeeEvents().addListener(listener);
                 else if (state.remove)
-                    dependee.removeListener(listener);
+                    dependee.dependeeEvents().removeListener(listener);
                 if (state.alive)
                     dependees.add(dependee);
             }
@@ -124,7 +124,7 @@ public class DependentCodeRunner {
         }
         for (Dependee dependee : oldDependees)
             try {
-                dependee.removeListener(listener);
+                dependee.dependeeEvents().removeListener(listener);
             } catch (Throwable e) {
                 Bugs.cleanupFailed(e, dependee);
             }

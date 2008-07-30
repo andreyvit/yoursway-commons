@@ -1,13 +1,9 @@
 package com.yoursway.utils.dependencies;
 
-import com.yoursway.utils.annotations.CallFromAnyThread_NonReentrant;
+import com.yoursway.utils.EventSource;
 
 public interface Dependee {
     
-    @CallFromAnyThread_NonReentrant
-    void addListener(DependeeListener listener);
-    
-    @CallFromAnyThread_NonReentrant
-    void removeListener(DependeeListener listener);
+    EventSource<DependeeListener> dependeeEvents();
     
 }
