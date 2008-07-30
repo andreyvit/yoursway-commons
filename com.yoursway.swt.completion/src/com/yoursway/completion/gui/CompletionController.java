@@ -9,16 +9,19 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 
 import com.yoursway.completion.CompletionProposal;
 import com.yoursway.completion.CompletionProposalUpdatesListener;
 import com.yoursway.completion.CompletionProposalsProvider;
+import com.yoursway.document.Document;
 
 public class CompletionController implements CompletionProposalUpdatesListener {
 	private CompletionProposalsView list;
 	private final StyledText text;
-
+	private List<? extends CompletionProposal> proposals;
+	private final Document document;
+	private boolean tabIsPressed = false;
+	
 	/**
 	 * 
 	 * @param parent
@@ -26,10 +29,11 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 	 * @param text
 	 *            text editor to enable completion for.
 	 */
-	public CompletionController(final StyledText text, final CompletionProposalsProvider proposalsProvider) {
-		if (text == null || proposalsProvider == null)
+	public CompletionController(final StyledText text, Document document, final CompletionProposalsProvider proposalsProvider) {
+		if (text == null || document == null || proposalsProvider == null)
 			throw new IllegalArgumentException();
 
+		this.document = document;
 		this.text = text;
 		this.list = new CompletionProposalsView(text.getShell());
 
@@ -40,6 +44,7 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 			public void handleEvent(Event event) {
 				Point listLocation = completionLocation();
 				if (event.character == SWT.TAB) {
+					tabIsPressed = true;
 					if (list.isVisible())
 						return;
 					proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
@@ -53,6 +58,9 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 						proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
 						list.setLocation(listLocation);
 					}
+					if (tabIsPressed && list.getItems().length > 1) {
+						list.show(new Rectangle(listLocation.x, listLocation.y, 200, 100),text);
+					}
 				}
 			}
 		});
@@ -61,6 +69,7 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 			public void handleEvent(Event event) {
 				list.setLocation(completionLocation());
 				if (event.character == SWT.TAB) {
+					tabIsPressed = false;
 					proposalsProvider.stopCompletion();
 					complete();
 				}
@@ -69,16 +78,16 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 	}
 
 	private void complete() {
+		if (!list.isVisible()) {
+			return;
+		}
 		list.hide();
 		if (list.getItems().length == 0)
 			return;
 		assert 0 <= list.getCurrentSelectionIndex() && list.getCurrentSelectionIndex() < list.getItems().length;
 
-		int start = (text.getText().lastIndexOf(' ') != -1) ? text.getText().lastIndexOf(' ') + 1 : 0;
-		int length = text.getCaretOffset() - start;
-		String replacement = list.getItems()[list.getCurrentSelectionIndex()];
-		text.replaceTextRange(start, length, replacement);
-		text.setCaretOffset(start + replacement.length());
+		CompletionProposal proposal = proposals.get(list.getCurrentSelectionIndex());
+		proposal.applyTo(document.getCurrentPosition());
 	}
 
 	private Point completionLocation() {
@@ -93,6 +102,7 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 	}
 
 	public void setProposals(List<? extends CompletionProposal> proposals) {
+		this.proposals = proposals;
 		String[] strings = new String[proposals.size()];
 		int i = 0;
 		for (CompletionProposal proposal : proposals) {
