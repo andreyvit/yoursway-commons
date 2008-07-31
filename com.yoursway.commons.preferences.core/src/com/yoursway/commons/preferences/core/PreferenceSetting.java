@@ -30,6 +30,10 @@ public abstract class PreferenceSetting implements Dependee, PreferenceContainer
         return container.get(name);
     }
     
+    protected void setRawValue(String newValue) {
+        container.set(name, newValue);
+    }
+    
     private transient Broadcaster<DependeeListener> broadcaster = newBroadcaster(DependeeListener.class);
     
     public EventSource<DependeeListener> dependeeEvents() {

@@ -16,16 +16,33 @@ public class Tracker {
         }
     };
     
+    public static void run(Runnable runnable) {
+        runAndTrack(runnable, NopDependeesRequestor.INSTANCE);
+    }
+
+    public static void runWithFinishedListener(Runnable runnable,
+            TrackingSectionListener listener) {
+        List<TrackingSectionListener> list = listenerSlot.get();
+        int oldSize = list.size();
+        list.add(listener);
+        try {
+            runnable.run();
+        } finally {
+            notifyFinishListeners(list, oldSize);
+        }
+    }
+
     public static void runAndTrack(Runnable runnable, DependeesRequestor requestor) {
         if (requestor == null)
             throw new NullPointerException("requestor is null");
         
         List<TrackingSectionListener> list = listenerSlot.get();
         int oldSize = list.size();
-        
-        slot.runWith(runnable, requestor);
-        
-        notifyFinishListeners(list, oldSize);
+        try {
+            slot.runWith(runnable, requestor);
+        } finally {
+            notifyFinishListeners(list, oldSize);
+        }
     }
 
     private static void notifyFinishListeners(List<TrackingSectionListener> list, int oldSize) {

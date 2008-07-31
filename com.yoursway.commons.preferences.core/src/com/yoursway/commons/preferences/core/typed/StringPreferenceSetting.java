@@ -11,5 +11,10 @@ public class StringPreferenceSetting extends AbstractTypedPreferenceSetting<Stri
     protected String decode(String raw) {
         return raw;
     }
+
+    @Override
+    protected String encode(String value) {
+        return value;
+    }
     
 }

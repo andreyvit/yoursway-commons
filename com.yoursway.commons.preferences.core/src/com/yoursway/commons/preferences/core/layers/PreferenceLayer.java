@@ -8,4 +8,12 @@ public abstract class PreferenceLayer {
     
     abstract Map<String, String> values();
 
+    public boolean isMutable() {
+        return false;
+    }
+
+    public void set(String name, String newValue) {
+        throw new UnsupportedOperationException();
+    }
+
 }

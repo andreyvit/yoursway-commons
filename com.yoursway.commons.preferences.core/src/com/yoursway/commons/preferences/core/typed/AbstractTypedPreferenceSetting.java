@@ -13,6 +13,12 @@ public abstract class AbstractTypedPreferenceSetting<T> extends PreferenceSettin
         return decode(rawValue());
     }
     
+    public void setValue(T newValue) {
+        setRawValue(encode(newValue));
+    }
+    
     protected abstract T decode(String raw); 
+    
+    protected abstract String encode(T value); 
     
 }

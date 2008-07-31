@@ -34,5 +34,10 @@ public class MutablePreferenceLayer extends PreferenceLayer {
     Map<String, String> values() {
         return values;
     }
+    
+    @Override
+    public boolean isMutable() {
+        return true;
+    }
 
 }
