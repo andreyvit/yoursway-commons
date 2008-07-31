@@ -5,6 +5,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import java.util.Map;
 
 import com.yoursway.commons.commitmodel.User;
+import com.yoursway.commons.commitmodel.demo.properties.state.PropertyBagState;
 
 public class PropertyBagUpdateSession {
     

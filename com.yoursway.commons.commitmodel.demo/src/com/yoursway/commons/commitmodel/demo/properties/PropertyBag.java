@@ -2,6 +2,7 @@ package com.yoursway.commons.commitmodel.demo.properties;
 
 import static com.yoursway.utils.broadcaster.BroadcasterFactory.newBroadcaster;
 
+import com.yoursway.commons.commitmodel.demo.properties.state.PropertyBagState;
 import com.yoursway.utils.EventSource;
 import com.yoursway.utils.broadcaster.Broadcaster;
 

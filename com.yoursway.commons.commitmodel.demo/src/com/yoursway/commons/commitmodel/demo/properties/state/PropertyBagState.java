@@ -1,4 +1,4 @@
-package com.yoursway.commons.commitmodel.demo.properties;
+package com.yoursway.commons.commitmodel.demo.properties.state;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -39,3 +39,4 @@ public class PropertyBagState {
     }
     
 }
+

@@ -15,9 +15,9 @@ import com.yoursway.commons.commitmodel.Repository;
 import com.yoursway.commons.commitmodel.Tree;
 import com.yoursway.commons.commitmodel.User;
 import com.yoursway.commons.commitmodel.demo.properties.PropertyBag;
-import com.yoursway.commons.commitmodel.demo.properties.PropertyBagState;
 import com.yoursway.commons.commitmodel.demo.properties.PropertyBagUpdateSession;
 import com.yoursway.commons.commitmodel.demo.properties.StringProperty;
+import com.yoursway.commons.commitmodel.demo.properties.state.PropertyBagState;
 import com.yoursway.utils.dependencies.DependentCodeRunner;
 
 public class SomeTests {
