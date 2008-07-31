@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Preferences Tests
+Bundle-SymbolicName: com.yoursway.commons.preferences.core.tests
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.yoursway.commons.preferences.core;bundle-version="1.0.0",
+ org.junit4;bundle-version="4.3.1",
+ com.yoursway.utils;bundle-version="1.0.0"
