@@ -44,8 +44,12 @@ public class DependentCodeRunner {
     private static class DependenciesUpdater implements DependeesRequestor {
         
         private Map<Dependee, DependeeState> states;
+        private final DependeeListener listener;
         
-        public DependenciesUpdater(Dependee[] dependees) {
+        public DependenciesUpdater(Dependee[] dependees, DependeeListener listener) {
+            if (listener == null)
+                throw new NullPointerException("listener is null");
+            this.listener = listener;
             Map<Dependee, DependeeState> states = newIdentityHashMap();
             for (Dependee dependee : dependees)
                 states.put(dependee, DependeeState.REMOVED);
@@ -55,19 +59,19 @@ public class DependentCodeRunner {
         @CallFromAnyThread_NonReentrant
         public synchronized void dependsOn(Dependee dependee) {
             DependeeState oldState = states.put(dependee, DependeeState.OLD_AND_ALIVE);
-            if (oldState == null)
+            if (oldState == null) {
                 states.put(dependee, DependeeState.ADDED);
+                dependee.dependeeEvents().addListener(listener);
+            }
         }
         
         @NonReentrant_SynchronizeExternallyOrUseFromSingleThread
-        public Dependee[] update(DependeeListener listener) {
+        public Dependee[] update() {
             List<Dependee> dependees = newArrayListWithCapacity(states.size());
             for (Entry<Dependee, DependeeState> entry : states.entrySet()) {
                 Dependee dependee = entry.getKey();
                 DependeeState state = entry.getValue();
-                if (state.add)
-                    dependee.dependeeEvents().addListener(listener);
-                else if (state.remove)
+                if (state.remove)
                     dependee.dependeeEvents().removeListener(listener);
                 if (state.alive)
                     dependees.add(dependee);
@@ -148,12 +152,12 @@ public class DependentCodeRunner {
         
         boolean again;
         do {
-            DependenciesUpdater updater = new DependenciesUpdater(oldDependees);
+            DependenciesUpdater updater = new DependenciesUpdater(oldDependees, listener);
             Tracker.runAndTrack(runnable, updater);
             synchronized (listener) {
                 if (disposed)
                     return;
-                this.dependees = updater.update(listener);
+                this.dependees = updater.update();
                 again = recalculateAgain;
                 if (again) {
                     recalculateAgain = false;
