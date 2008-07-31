@@ -36,7 +36,13 @@ public class SimpleReadingTests {
 
     @Test
     public void emptyInitially() throws Exception {
-        assertNull(fooSetting.value());
+        new DependentCodeRunner(new Runnable() {
+            
+            public void run() {
+                assertNull(fooSetting.value());
+            }
+            
+        });
     }
     
     @Test
@@ -52,6 +58,27 @@ public class SimpleReadingTests {
         newLayer.set("foo", "bar");
         container.uiBranch.update(newLayer);
         assertOutput("null\nbar\n");
+    }
+    
+    @Test
+    public void readsAreConsistent() throws Exception {
+        new DependentCodeRunner(new Runnable() {
+            
+            private boolean done = false;
+            
+            public void run() {
+                out.println(fooSetting.value());
+                if (!done) {
+                    done = true;
+                    MutablePreferenceLayer newLayer = new MutablePreferenceLayer(container.uiBranch.getLayer());
+                    newLayer.set("foo", "bar");
+                    container.uiBranch.update(newLayer);
+                }
+                out.println(fooSetting.value());
+            }
+            
+        });
+        assertOutput("null\nnull\nbar\nbar\n");
     }
     
 }
