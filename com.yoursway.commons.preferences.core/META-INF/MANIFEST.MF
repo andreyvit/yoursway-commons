@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Preferences
+Bundle-SymbolicName: com.yoursway.commons.preferences.core
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.yoursway.utils;bundle-version="1.0.0",
+ com.google.collections;bundle-version="1.0.0"
+Export-Package: com.yoursway.commons.preferences.core,
+ com.yoursway.commons.preferences.core.branch;x-friends:="com.yoursway.commons.preferences.core.tests",
+ com.yoursway.commons.preferences.core.layers;x-friends:="com.yoursway.commons.preferences.core.tests",
+ com.yoursway.commons.preferences.core.typed
