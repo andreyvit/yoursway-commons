@@ -8,7 +8,8 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
 import com.yoursway.swt.styledtext.extended.Inset;
-import com.yoursway.utils.annotations.UseFromAnyThread;
+import com.yoursway.utils.annotations.CallFromAnyThread_NonReentrant;
+import com.yoursway.utils.annotations.Reentrant_CallFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
 public class InsetPlace {
@@ -39,7 +40,7 @@ public class InsetPlace {
         updateLocation();
     }
     
-    @UseFromAnyThread
+    @CallFromAnyThread_NonReentrant
     public int offset() {
         return offset;
     }
@@ -48,7 +49,7 @@ public class InsetPlace {
         this.offset = offset;
     }
     
-    @UseFromAnyThread
+    @Reentrant_CallFromAnyThread
     public Inset inset() {
         return inset;
     }

@@ -19,7 +19,7 @@ import com.yoursway.swt.styledtext.extended.Inset;
 import com.yoursway.swt.styledtext.extended.InsetSite;
 import com.yoursway.swt.styledtext.extended.ResizeListener;
 import com.yoursway.swt.styledtext.extended.internal.InsetPlace;
-import com.yoursway.utils.annotations.UseFromAnyThread;
+import com.yoursway.utils.annotations.Reentrant_CallFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
 @UseFromUIThread
@@ -124,12 +124,12 @@ public class YourSwayStyledTextInternal extends StyledText {
         }
     }
     
-    @UseFromAnyThread
+    @Reentrant_CallFromAnyThread
     public String insetPlaceholder() {
         return "\uFFFC";
     }
     
-    @UseFromAnyThread
+    @Reentrant_CallFromAnyThread
     private int insetPlaceholderLength() throws AssertionError {
         if (insetPlaceholder().length() != 1)
             throw new AssertionError("An inset placeholder must have 1 char length.");

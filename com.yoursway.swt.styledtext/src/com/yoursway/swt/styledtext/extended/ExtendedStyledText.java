@@ -15,13 +15,14 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
 
-import com.yoursway.utils.annotations.UseFromAnyThread;
+import com.yoursway.utils.annotations.CallFromAnyThread_NonReentrant;
+import com.yoursway.utils.annotations.Reentrant_CallFromAnyThread;
 import com.yoursway.utils.annotations.UseFromUIThread;
 
 @UseFromUIThread
 public class ExtendedStyledText {
     
-    YourSwayStyledTextInternal internal; //? rename to ExtendedTextWidget widget
+    private final YourSwayStyledTextInternal internal; //? rename to ExtendedTextWidget widget
     
     public ExtendedStyledText(Composite parent, int style) {
         internal = new YourSwayStyledTextInternal(parent, style);
@@ -200,7 +201,7 @@ public class ExtendedStyledText {
         return withoutInsets(internal.getSelectionText());
     }
     
-    @UseFromAnyThread
+    @Reentrant_CallFromAnyThread
     private String withoutInsets(String text) {
         return text.replace("\n" + internal.insetPlaceholder(), "");
     }
@@ -231,7 +232,7 @@ public class ExtendedStyledText {
         return internal.getShell();
     }
     
-    @UseFromAnyThread
+    @CallFromAnyThread_NonReentrant
     public Display getDisplay() {
         return internal.getDisplay();
     }

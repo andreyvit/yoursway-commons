@@ -1,15 +1,12 @@
 package com.yoursway.swt.inspector;
 
-
 import static com.google.common.base.Join.join;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.yoursway.utils.DebugOutputHelper.simpleNameOf;
 import static java.lang.String.format;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -26,7 +23,7 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
     private final Display display;
     private final SwtInspectorModel model;
     
-    static final int KEYED_DATA       = 1 << 2;
+    static final int KEYED_DATA = 1 << 2;
     
     private static final int MASK = SWT.ALT | SWT.SHIFT;
     
@@ -39,7 +36,7 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
                     turnOffTracking();
                     event.doit = false;
                     return;
-                } 
+                }
                 highlightActiveControl(event.widget);
                 break;
             case SWT.MouseExit:
@@ -57,7 +54,7 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
         
     };
     
-    private ControlHightlightView controlHightlightView;
+    private final ControlHightlightView controlHightlightView;
     private final ControlRegistry controlRegistry;
     
     public SwtInspectorController(Display display, SwtInspectorViewFactory factory,
@@ -79,7 +76,7 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
         
         turnOnTracking();
     }
-
+    
     void highlightActiveControl(Widget widget) {
         if (!model.highlightControls)
             return;
@@ -113,7 +110,7 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
         result.append(format("Size: %dx%d\n", control.getSize().x, control.getSize().y));
         appendUserData(control, result);
     }
-
+    
     private void appendUserData(Control control, StringBuilder result) {
         String objectDataDescription;
         try {
@@ -146,22 +143,23 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
             result.append(format("User data keys: %s", objectDataDescription));
         }
     }
-
+    
     private void appendLayoutData(Control control, StringBuilder result) {
         result.append(format("Layout data: %s\n", control.getLayoutData()));
     }
-
+    
     private void appendLayout(StringBuilder result, Layout layout) {
-        result.append(format("Layout: %s\n", (layout == null ? "(none)" : layout.getClass()
-                .getSimpleName())));
+        result
+                .append(format("Layout: %s\n",
+                        (layout == null ? "(none)" : layout.getClass().getSimpleName())));
         if (layout != null)
             result.append(format("Layout.toString: %s\n", layout));
     }
-
+    
     private void appendNewLine(StringBuilder result) {
         result.append("\n");
     }
-
+    
     private void appendName(Control control, int depth, StringBuilder result, ControlDescriptor descriptor) {
         String controlDesignator = depth == 0 ? "Control" : "Parent " + depth;
         result.append(format("%s: %s\n", controlDesignator, descriptor.name(control)));
@@ -173,14 +171,14 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
             appendStyles(control, d, d.className() + " styles", false, result);
     }
     
-    private void appendStyles(Control control, ControlDescriptor descriptor, String message,
-            boolean force, StringBuilder result) {
+    private void appendStyles(Control control, ControlDescriptor descriptor, String message, boolean force,
+            StringBuilder result) {
         String styles = join(", ", descriptor.stylesOf(control));
         if (styles.length() == 0 && !force)
             return;
         result.append(format("%s: %s\n", message, (styles.length() == 0 ? "(none)" : styles)));
     }
-
+    
     public void show() {
         view.open();
     }
@@ -199,7 +197,7 @@ public class SwtInspectorController implements SwtInspectorViewCallback {
             view.setMessageToWelcome();
         }
     }
-
+    
     private void turnOnTracking() {
         model.highlightControls = true;
         

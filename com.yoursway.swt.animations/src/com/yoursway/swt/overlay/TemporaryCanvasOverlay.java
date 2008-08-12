@@ -10,7 +10,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
@@ -20,11 +19,11 @@ import org.eclipse.swt.widgets.Shell;
 
 public class TemporaryCanvasOverlay implements Overlay {
     
-    private GC gc;
-    private Canvas canvas;
+    private final GC gc;
+    private final Canvas canvas;
     private Image screenshot;
-    private Rectangle bounds;
-    private Control originalControl;
+    private final Rectangle bounds;
+    private final Control originalControl;
     private Color erasedBackgroundColor;
     
     public TemporaryCanvasOverlay(Control control, Rectangle bounds) {
@@ -159,11 +158,11 @@ public class TemporaryCanvasOverlay implements Overlay {
     public void renderOffscreenImage(Image offscreenImage) {
         gc.drawImage(offscreenImage, 0, 0);
     }
-
+    
     public void enableBackgroundErasing(Color color) {
         this.erasedBackgroundColor = color;
     }
-
+    
     public void disposeWithFadeout(final Image sourceImage, final int delay) {
         final Image image = new Image(canvas.getDisplay(), bounds.width, bounds.height);
         final GC gc = new GC(image);
@@ -174,6 +173,7 @@ public class TemporaryCanvasOverlay implements Overlay {
                 setDaemon(true);
             }
             
+            @Override
             public void run() {
                 try {
                     long endTime = System.currentTimeMillis() + delay;
