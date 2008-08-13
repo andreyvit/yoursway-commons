@@ -285,4 +285,16 @@ public class YourSwayStyledTextInternal extends StyledText {
         return caretLine() == getLineCount() - 1;
     }
     
+    @Override
+    void doLineDown(boolean select) {
+        // TODO Auto-generated method stub
+        super.doLineDown(select);
+    }
+    
+    @Override
+    void doLineUp(boolean select) {
+        // TODO Auto-generated method stub
+        super.doLineUp(select);
+    }
+    
 }

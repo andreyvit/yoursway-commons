@@ -45,8 +45,11 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
     }
     
     public void keyPressed(KeyEvent e) {
+        
+        /*
         if (view.inInsetLine()) {
             boolean selection = ((e.stateMask & SWT.SHIFT) == SWT.SHIFT);
+            
             
             if (e.keyCode == SWT.ARROW_UP || e.keyCode == SWT.ARROW_LEFT || e.character == '\b') {
                 view.invokeAction(selection ? ST.SELECT_LINE_UP : ST.LINE_UP);
@@ -65,7 +68,7 @@ public class ExtendedTextController implements VerifyKeyListener, KeyListener, M
                 // not handle or block other keys
             }
         }
-        
+        */
     }
     
     public void keyReleased(KeyEvent e) {
