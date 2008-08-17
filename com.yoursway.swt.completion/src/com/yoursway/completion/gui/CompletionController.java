@@ -13,14 +13,71 @@ import org.eclipse.swt.widgets.Listener;
 import com.yoursway.completion.CompletionProposal;
 import com.yoursway.completion.CompletionProposalUpdatesListener;
 import com.yoursway.completion.CompletionProposalsProvider;
+import com.yoursway.completion.gui.internal.CompletionControllerState;
 import com.yoursway.document.Document;
 
 public class CompletionController implements CompletionProposalUpdatesListener {
+	protected static final long TIME_TO_HOLD_TAB_BEFORE_POPUP = 1000;
 	private CompletionProposalsView list;
 	private final StyledText text;
 	private List<? extends CompletionProposal> proposals;
 	private final Document document;
-	private boolean tabIsPressed = false;
+
+	private CompletionControllerState currentState;
+	
+	private CompletionControllerState tabReleased;
+	private CompletionControllerState tabHeld;
+	private final CompletionProposalsProvider proposalsProvider;
+		
+	private class TabDownState implements CompletionControllerState{
+		private long timestamp;
+		public TabDownState() {
+			timestamp = System.currentTimeMillis();
+		}
+		public void onKeyDown() {
+			if (System.currentTimeMillis() - timestamp >= TIME_TO_HOLD_TAB_BEFORE_POPUP) {
+				if(list.getItems().length > 0 && !list.isVisible()) {
+					Point listLocation = completionLocation();
+					list.show(new Rectangle(listLocation.x, listLocation.y, 200, 100),text);
+				}
+				currentState = tabHeld;
+			}
+		}
+		
+		public void onKeyUp() {
+			if (list.getItems().length > 0 && list.getCurrentSelectionIndex() >= 0) {
+				complete();
+			}
+			currentState = tabReleased;
+		}
+	};
+	private void initStates() {
+		tabReleased = new CompletionControllerState(){
+			
+			public void onKeyDown() {
+				proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
+				currentState = new TabDownState();
+			}
+			
+			public void onKeyUp() {
+				//do nothing
+			}
+		};
+		tabHeld = new CompletionControllerState(){
+			
+			public void onKeyDown() {
+				// do nothing
+			}
+			
+			public void onKeyUp() {
+				if (list.getItems().length > 0 && list.getCurrentSelectionIndex() >= 0) {
+					complete();
+				}
+				list.hide();
+				currentState = tabReleased;
+			}
+		};
+	}
 	
 	/**
 	 * 
@@ -36,31 +93,24 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 		this.document = document;
 		this.text = text;
 		this.list = new CompletionProposalsView(text.getShell());
+		this.proposalsProvider = proposalsProvider;
+		
+		initStates();
+		currentState = tabReleased;
 
 		final Listener oldKeyDownListener = text.getListeners(SWT.KeyDown)[0];
 		text.removeListener(SWT.KeyDown, oldKeyDownListener); 
 		text.addListener(SWT.KeyDown, new Listener() {
 
 			public void handleEvent(Event event) {
-				Point listLocation = completionLocation();
 				if (event.character == SWT.TAB) {
-					tabIsPressed = true;
-					if (list.isVisible())
-						return;
-					proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
-					if (list.getItems().length > 0)
-						list.show(new Rectangle(listLocation.x, listLocation.y, 200, 100),text);
+					currentState.onKeyDown();
 					event.doit = false;
 				} else {
-					String oldStr = text.getText();
 					oldKeyDownListener.handleEvent(event);
-					if (text.getText().length() != oldStr.length()) {
-						proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
-						list.setLocation(listLocation);
-					}
-					if (tabIsPressed && list.getItems().length > 1) {
-						list.show(new Rectangle(listLocation.x, listLocation.y, 200, 100),text);
-					}
+					Point listLocation = completionLocation();
+					proposalsProvider.startCompletionFor(CompletionController.this, text.getText(), text.getCaretOffset());
+					list.setLocation(listLocation);
 				}
 			}
 		});
@@ -69,23 +119,19 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 			public void handleEvent(Event event) {
 				list.setLocation(completionLocation());
 				if (event.character == SWT.TAB) {
-					tabIsPressed = false;
+					currentState.onKeyUp();
 					proposalsProvider.stopCompletion();
-					complete();
 				}
 			}
 		});
 	}
 
+
 	private void complete() {
-		if (!list.isVisible()) {
-			return;
-		}
-		list.hide();
-		if (list.getItems().length == 0)
-			return;
+		assert list.getItems().length > 0;
 		assert 0 <= list.getCurrentSelectionIndex() && list.getCurrentSelectionIndex() < list.getItems().length;
 
+		list.hide();
 		CompletionProposal proposal = proposals.get(list.getCurrentSelectionIndex());
 		proposal.applyTo(document.getCurrentPosition());
 	}
@@ -109,8 +155,8 @@ public class CompletionController implements CompletionProposalUpdatesListener {
 			strings[i++] = proposal.completetion();
 		}
 		list.setItems(strings);
-		if (list.isVisible() && (proposals.size() == 0 || proposals.size() == 1)) {
-			complete();
-		}
+//		if (proposals.size() == 0 || proposals.size() == 1) {
+//			complete();
+//		}
 	}
 }
