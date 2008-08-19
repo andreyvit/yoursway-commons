@@ -59,7 +59,7 @@ public class YsFileUtils {
             }
         }
     }
-
+    
     public static void writeObject(Object object, OutputStream out) throws IOException {
         ObjectOutputStream oo = new ObjectOutputStream(out);
         oo.writeObject(object);
@@ -229,8 +229,12 @@ public class YsFileUtils {
     }
     
     public static File createTempFolder(String prefix, String suffix) throws IOException {
-        File file = File.createTempFile(prefix, suffix);
-        return new File(file.getParentFile(), file.getName() + ".dir");
+        File file;
+        do {
+            file = File.createTempFile(prefix, suffix);
+            file.delete();
+        } while (!file.mkdir());
+        return file;
     }
     
     public static File findLatestOsgiBundle(File folder, String bundleName) {
@@ -428,10 +432,11 @@ public class YsFileUtils {
     /**
      * @deprecated Use {@link YsPathUtils#joinPath(String,String)} instead
      */
+    @Deprecated
     public static String joinPath(String a, String b) {
         return YsPathUtils.joinPath(a, b);
     }
-
+    
     public static boolean isBogusFile(String name) {
         return Pattern.compile("^([._](git|svn|darcs)|CVS|\\.DS_Store)$").matcher(name).find();
     }
