@@ -14,6 +14,7 @@ Export-Package: com.yoursway.utils,
  com.yoursway.utils.fileset,
  com.yoursway.utils.filespec,
  com.yoursway.utils.instrusive,
+ com.yoursway.utils.log,
  com.yoursway.utils.relativepath,
  com.yoursway.utils.strings
 Require-Bundle: com.google.collections;bundle-version="1.0.0"
