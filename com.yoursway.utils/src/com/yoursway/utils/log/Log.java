@@ -1,5 +1,7 @@
 package com.yoursway.utils.log;
 
+import java.io.OutputStream;
+
 public class Log {
     
     private static Logger logger = new DefaultLogger();
@@ -8,7 +10,7 @@ public class Log {
         Log.logger = logger;
     }
     
-    private static void write(String message, LogEntryType type, StackTraceElement place) {
+    static void write(String message, LogEntryType type, StackTraceElement place) {
         logger.add(new LogEntry(message, type, place));
     }
     
@@ -20,6 +22,11 @@ public class Log {
     public static void write(String message) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         write(message, LogEntryType.NOTIFICATION, stackTrace[3]);
+    }
+    
+    public static OutputStream stream() {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        return new LogOutputStream(LogEntryType.NOTIFICATION, stackTrace[3]);
     }
     
 }
