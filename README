@@ -1,0 +1,1 @@
+YourSway Commons is a collection of various stuff in use by YourSway (http://yoursway.com/). Most projects here target OSGi environment, but at least some (com.yoursway.utils) are designed to be used in plain Java applications out of the box. (Many other projects can be easily adapted for plain Java usage too).

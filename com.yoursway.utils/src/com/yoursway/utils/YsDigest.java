@@ -47,7 +47,7 @@ public class YsDigest {
         }
     }
     
-    private static MessageDigest createMd5() {
+    public static MessageDigest createMd5() {
         try {
             return MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -55,7 +55,7 @@ public class YsDigest {
         }
     }
     
-    private static MessageDigest createSha1() {
+    public static MessageDigest createSha1() {
         try {
             return MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
@@ -77,7 +77,7 @@ public class YsDigest {
      *            Array of bytes to convert to hex-string
      * @return Generated hex string
      */
-    private static String asHex(byte hash[]) {
+    public static String asHex(byte hash[]) {
         char buf[] = new char[hash.length * 2];
         for (int i = 0, x = 0; i < hash.length; i++) {
             buf[x++] = HEX_CHARS[(hash[i] >>> 4) & 0xf];
