@@ -11,9 +11,9 @@ public class YsOSUtils {
         if (os == null) {
             String osName = System.getProperty("os.name");
             
-            if (os.equals("Mac OS X"))
+            if (osName.equals("Mac OS X"))
                 os = new MacUtils();
-            else if (os.equals("Windows NT"))
+            else if (osName.equals("Windows NT"))
                 os = new WinUtils();
             
             if (os == null)
