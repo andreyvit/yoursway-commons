@@ -1,19 +1,24 @@
 package com.yoursway.utils.broadcaster;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
+import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.LLOAD;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
@@ -21,6 +26,7 @@ import static org.objectweb.asm.Opcodes.V1_5;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassWriter;
@@ -31,13 +37,13 @@ import com.yoursway.utils.Listeners;
 import com.yoursway.utils.bugs.Bugs;
 
 public class BroadcasterFactory<Listener> {
-
+    
     private static final String IMPL_SUFFIX = "_MagicBroadcasterImpl";
     
     private static final String FACTORY_SUFFIX = "_MagicBroadcasterFactory";
     
     private static final String THROWABLE_NAME = "java/lang/Throwable";
-
+    
     private static final String OBJECT_NAME = "java/lang/Object";
     
     private static final String OBJECT_SIG = "L" + OBJECT_NAME + ";";
@@ -63,7 +69,7 @@ public class BroadcasterFactory<Listener> {
     private static final String INIT = "<init>";
     
     private static final String[] NO_EXCEPTIONS = new String[0];
-
+    
     private final InternalBroadcasterFactory factory;
     
     public BroadcasterFactory(Class<Listener> listenerInterface, ClassLoader classLoader) {
@@ -78,12 +84,13 @@ public class BroadcasterFactory<Listener> {
         final byte[] factoryCode = emitFactory(factoryName, className);
         final byte[] implCode = emitImpl(interfaceName, className, listenerInterface.getDeclaredMethods());
         
-//      ClassReader r = new ClassReader(implCode);
-//      TraceClassVisitor v = new TraceClassVisitor(new PrintWriter(System.out));
-//      r.accept(v, 0);
-
+        //      ClassReader r = new ClassReader(implCode);
+        //      TraceClassVisitor v = new TraceClassVisitor(new PrintWriter(System.out));
+        //      r.accept(v, 0);
+        
         ClassLoader loader = new ClassLoader(listenerInterface.getClassLoader()) {
             
+            @Override
             protected Class<?> findClass(String name) throws ClassNotFoundException {
                 if (name.equals(className))
                     return defineClass(className.replace('/', '.'), implCode, 0, implCode.length);
@@ -118,7 +125,7 @@ public class BroadcasterFactory<Listener> {
     public static <Listener> void removeBroadcasterListener(Listener broadcaster, Listener listener) {
         ((Broadcaster) broadcaster).removeListener(listener);
     }
-
+    
     @SuppressWarnings("unchecked")
     private Class<? extends InternalBroadcasterFactory> loadClass(ClassLoader loader, final String className)
             throws AssertionError {
@@ -131,7 +138,6 @@ public class BroadcasterFactory<Listener> {
         return klass;
     }
     
-
     private static Map<Class<?>, BroadcasterFactory<?>> broadcasters = new HashMap<Class<?>, BroadcasterFactory<?>>();
     
     public synchronized static <T> Broadcaster<T> newBroadcaster(Class<T> listenerInterface) {
@@ -148,7 +154,8 @@ public class BroadcasterFactory<Listener> {
     }
     
     @SuppressWarnings("unchecked")
-    public synchronized static <T> BroadcasterFactory<T> newBroadcasterFactory(Class<T> listenerInterface, ClassLoader classLoader) {
+    public synchronized static <T> BroadcasterFactory<T> newBroadcasterFactory(Class<T> listenerInterface,
+            ClassLoader classLoader) {
         BroadcasterFactory<T> result = (BroadcasterFactory<T>) broadcasters.get(listenerInterface);
         if (result == null) {
             result = new BroadcasterFactory(listenerInterface, classLoader);
@@ -167,7 +174,7 @@ public class BroadcasterFactory<Listener> {
         
         return w.toByteArray();
     }
-
+    
     private static void emitFactoryMethod(String className, ClassWriter w) {
         MethodVisitor mw = w.visitMethod(ACC_PUBLIC, "create", "()" + OBJECT_SIG, null, NO_EXCEPTIONS);
         mw.visitTypeInsn(NEW, className);
@@ -180,20 +187,21 @@ public class BroadcasterFactory<Listener> {
     
     private static <T> byte[] emitImpl(String interfaceName, String className, Method[] methods) {
         ClassWriter w = new ClassWriter(0);
-        w.visit(V1_5, ACC_PUBLIC, className, null, OBJECT_NAME, new String[] { interfaceName, BROADCASTER_INTERFACE_NAME });
+        w.visit(V1_5, ACC_PUBLIC, className, null, OBJECT_NAME, new String[] { interfaceName,
+                BROADCASTER_INTERFACE_NAME });
         
         w.visitField(ACC_PRIVATE, LISTENERS_FIELD, LISTENERS_SIG, null, null).visitEnd();
         emitConstructor(className, w);
         emitBroadcasterMethodThunk(className, "addListener", "add", w);
         emitBroadcasterMethodThunk(className, "removeListener", "remove", w);
         emitFireMethod(className, w);
-
+        
         for (Method method : methods) {
             String name = method.getName();
             if (name.equals("addListener") || name.equals("removeListener"))
                 continue;
             emitListenerMethodThunk(interfaceName, className, w, descriptorOf(method), name,
-                    exceptionsOf(method), method.getParameterTypes().length);
+                    exceptionsOf(method), argumentKindsOf(method));
         }
         
         w.visitEnd();
@@ -201,8 +209,10 @@ public class BroadcasterFactory<Listener> {
         return w.toByteArray();
     }
     
-    private static void emitBroadcasterMethodThunk(String className, String methodName, String targetName, ClassWriter w) {
-        MethodVisitor mw = w.visitMethod(ACC_PUBLIC, methodName, ADD_OR_REMOVE_LISTENER_SIG, null, NO_EXCEPTIONS);
+    private static void emitBroadcasterMethodThunk(String className, String methodName, String targetName,
+            ClassWriter w) {
+        MethodVisitor mw = w.visitMethod(ACC_PUBLIC, methodName, ADD_OR_REMOVE_LISTENER_SIG, null,
+                NO_EXCEPTIONS);
         mw.visitVarInsn(ALOAD, 0);
         mw.visitFieldInsn(GETFIELD, className, LISTENERS_FIELD, LISTENERS_SIG);
         mw.visitVarInsn(ALOAD, 1);
@@ -221,9 +231,13 @@ public class BroadcasterFactory<Listener> {
     }
     
     private static void emitListenerMethodThunk(String interfaceName, String className, ClassWriter w,
-            String signature, String methodName, String[] exceptions, int argCount) {
+            String signature, String methodName, String[] exceptions, List<TypeFamily> argumentTypes) {
         MethodVisitor mw = w.visitMethod(ACC_PUBLIC, methodName, signature, null, exceptions);
-        int firstLocal = argCount + 1;
+        int argCount = argumentTypes.size();
+        int argSize = 0;
+        for (TypeFamily family : argumentTypes)
+            argSize += family.size();
+        int firstLocal = argSize + 1;
         int secondLocal = firstLocal + 1;
         Label startLoop = new Label();
         Label endLoop = new Label();
@@ -247,21 +261,22 @@ public class BroadcasterFactory<Listener> {
         
         mw.visitLabel(tryStart);
         mw.visitVarInsn(ALOAD, secondLocal);
-        for (int arg = 1; arg <= argCount; arg++)
-            mw.visitVarInsn(ALOAD, arg);
+        for (int arg = 1; arg <= argCount; arg += argumentTypes.get(arg - 1).size())
+            mw.visitVarInsn(argumentTypes.get(arg - 1).loadCommand(), arg);
         mw.visitMethodInsn(INVOKEINTERFACE, interfaceName, methodName, signature);
         mw.visitJumpInsn(GOTO, startLoop);
         
         mw.visitLabel(catchStart);
         mw.visitTryCatchBlock(tryStart, catchStart, catchStart, THROWABLE_NAME);
         mw.visitVarInsn(ALOAD, secondLocal);
-        mw.visitMethodInsn(INVOKESTATIC, BUGS_NAME, "listenerFailed", "(Ljava/lang/Throwable;Ljava/lang/Object;)V");
+        mw.visitMethodInsn(INVOKESTATIC, BUGS_NAME, "listenerFailed",
+                "(Ljava/lang/Throwable;Ljava/lang/Object;)V");
         mw.visitJumpInsn(GOTO, startLoop);
         
         mw.visitLabel(endLoop);
         mw.visitInsn(RETURN);
         
-        mw.visitMaxs(Math.max(2, argCount + 1), argCount + 3);
+        mw.visitMaxs(Math.max(2, argSize + 1), argSize + 3);
         mw.visitEnd();
     }
     
@@ -286,6 +301,86 @@ public class BroadcasterFactory<Listener> {
         cw.visitInsn(RETURN);
         cw.visitMaxs(1, 1);
         cw.visitEnd();
+    }
+    
+    enum TypeFamily {
+        
+        OBJECT {
+            @Override
+            public int loadCommand() {
+                return ALOAD;
+            }
+        },
+        
+        INT {
+            @Override
+            public int loadCommand() {
+                return ILOAD;
+            }
+        },
+        
+        LONG {
+            @Override
+            public int loadCommand() {
+                return LLOAD;
+            }
+            
+            @Override
+            public int size() {
+                return 2;
+            }
+        },
+        
+        FLOAT {
+            @Override
+            public int loadCommand() {
+                return FLOAD;
+            }
+        },
+        
+        DOUBLE {
+            @Override
+            public int loadCommand() {
+                return DLOAD;
+            }
+            
+            @Override
+            public int size() {
+                return 2;
+            }
+        },
+        
+        ;
+        
+        public abstract int loadCommand();
+        
+        public int size() {
+            return 1;
+        }
+        
+        public static TypeFamily fromClass(Class<?> klass) {
+            String name = klass.getName();
+            if (name.startsWith("["))
+                return OBJECT; // not implemented
+            if (name.equals("boolean"))
+                return INT;
+            if (name.equals("byte"))
+                return INT;
+            if (name.equals("char"))
+                return INT;
+            if (name.equals("double"))
+                return DOUBLE;
+            if (name.equals("float"))
+                return FLOAT;
+            if (name.equals("int"))
+                return INT;
+            if (name.equals("long"))
+                return LONG;
+            if (name.equals("short"))
+                return INT;
+            return OBJECT;
+        }
+        
     }
     
     public static String signatureOf(Class<?> klass) {
@@ -329,6 +424,13 @@ public class BroadcasterFactory<Listener> {
         result.append(')');
         result.append(signatureOf(method.getReturnType()));
         return result.toString();
+    }
+    
+    private static List<TypeFamily> argumentKindsOf(Method method) {
+        List<TypeFamily> result = newArrayList();
+        for (Class<?> klass : method.getParameterTypes())
+            result.add(TypeFamily.fromClass(klass));
+        return result;
     }
     
     private static String[] exceptionsOf(Method method) {
