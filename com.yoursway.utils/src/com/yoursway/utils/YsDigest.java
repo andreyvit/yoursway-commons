@@ -20,6 +20,10 @@ public class YsDigest {
         
     }
     
+    public static String sha1(InputStream stream) throws IOException {
+        return fromInputStrem(stream, createSha1());
+    }
+
     public static String md5(String data) {
         try {
             MessageDigest algo = createMd5();
@@ -33,8 +37,11 @@ public class YsDigest {
     }
     
     public static String md5(InputStream stream) throws IOException {
+        return fromInputStrem(stream, createMd5());
+    }
+    
+    private static String fromInputStrem(InputStream stream, MessageDigest algo) throws IOException {
         try {
-            MessageDigest algo = createMd5();
             byte[] buf = new byte[1 * 1024 * 1024];
             int len = stream.read(buf);
             while (len > 0) {
