@@ -10,10 +10,11 @@ public class YsOSUtils {
     private static OSUtils os() {
         if (os == null) {
             String osName = System.getProperty("os.name");
+            String lowercased = osName.toLowerCase();
             
-            if (osName.equals("Mac OS X"))
+            if (lowercased.contains("mac"))
                 os = new MacUtils();
-            else if (osName.equals("Windows NT"))
+            else if (lowercased.contains("win"))
                 os = new WinUtils();
             
             if (os == null)
