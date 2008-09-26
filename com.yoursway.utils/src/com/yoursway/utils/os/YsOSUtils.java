@@ -36,8 +36,14 @@ public class YsOSUtils {
         os().setExecAttribute(file);
     }
     
-    public static String javaRelativePath() {
+    private static String javaRelativePath() {
         return os().javaRelativePath();
+    }
+    
+    public static String javaPath() throws IOException {
+        String javaHome = System.getProperty("java.home");
+        File javaFile = new File(javaHome, javaRelativePath());
+        return javaFile.getCanonicalPath();
     }
     
 }
