@@ -14,6 +14,23 @@ import com.yoursway.modelediting.ReplaceImpossibleException;
 
 public class ModelReconciler implements IModelListener {
 
+	private class StyledTextListener implements Listener {
+
+		public void handleEvent(Event event) {
+
+			if (event.type == SWT.Verify) {
+				event.doit = false;
+				try {
+					if (canModify(event.start, event.end))
+						modify(event.start, event.end, event.text);
+				} catch (ReplaceImpossibleException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+	}
+
 	private final IStyledText styledText;
 	private final Model model;
 	private StyledTextListener styledTextListener;
@@ -30,18 +47,25 @@ public class ModelReconciler implements IModelListener {
 
 		fragments = model.fragments();
 
+		StringBuilder text = new StringBuilder();
+		for (Fragment f : fragments) {
+			text.append(f.toString());
+		}
+		styledText.setText(text.toString());
+
 		model.addListener(this);
 
 		styledTextListener = new StyledTextListener();
 		styledText.addListener(SWT.Verify, styledTextListener);
 		styledText.addListener(SWT.Modify, styledTextListener);
+
 	}
 
 	public int findLeftFragment(int offset, boolean isDeletion) {
 		int position = 0;
 		int index = 0;
 		for (Fragment fragment : fragments) {
-			int intervalStart = position + (fragment.includesStart() || isDeletion? 0 : 1);
+			int intervalStart = position + (fragment.includesStart() || isDeletion ? 0 : 1);
 			int fLength = fragment.toString().length();
 			int intervalEnd = position + (fragment.includesEnd() ? 0 : -1) + fLength;
 
@@ -90,7 +114,7 @@ public class ModelReconciler implements IModelListener {
 			if (num == index)
 				return pos;
 			pos += fragment.toString().length();
-			num ++;
+			num++;
 		}
 		return pos;
 	}
@@ -110,9 +134,9 @@ public class ModelReconciler implements IModelListener {
 				endOffset = end - getFragmentOffset(endFragment);
 			} else {
 				endOffset = fragment.toString().length();
-			}			
+			}
 			startOffset = 0;
-			if(fragment.canReplace(startOffset, endOffset - startOffset)) {
+			if (fragment.canReplace(startOffset, endOffset - startOffset)) {
 				hasModifiableArea = true;
 			}
 		}
@@ -122,7 +146,7 @@ public class ModelReconciler implements IModelListener {
 	public void modify(int start, int end, String text) throws ReplaceImpossibleException {
 		if (text == null)
 			throw new NullPointerException("text is null");
-		boolean isDeletion = (start<end);
+		boolean isDeletion = (start < end);
 		int startFragment = findLeftFragment(start, isDeletion);
 		int endFragment = findRightFragment(end, isDeletion);
 		if (startFragment == -1 || endFragment == -1 || startFragment > endFragment)
@@ -141,27 +165,9 @@ public class ModelReconciler implements IModelListener {
 			}
 			startOffset = 0;
 		}
-		if(!text.equals("")){
+		if (!text.equals("")) {
 			throw new ReplaceImpossibleException("Text ranges are not editable");
 		}
-	}
-
-	private class StyledTextListener implements Listener {
-
-		public void handleEvent(Event event) {
-			if (event.type == SWT.Verify) {
-				if (canModify(event.start, event.end)) {
-					event.doit = false;
-				}
-			} else if (event.type == SWT.Modify) {
-				try {
-					modify(event.start, event.end, event.text);
-				} catch (ReplaceImpossibleException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-
 	}
 
 	public void modelChanged(Object sender, Model model, int firstFragment, int oldCount,
@@ -179,7 +185,8 @@ public class ModelReconciler implements IModelListener {
 		}
 		this.fragments = new ArrayList<Fragment>(model.fragments());
 		String text = styledText.getText();
-		String text2 = text.substring(0, startOffset) + newText + text.substring(startOffset + cutLength);
+		String text2 = text.substring(0, startOffset) + newText
+				+ text.substring(startOffset + cutLength);
 		if (!text.equals(text2))
 			styledText.setText(text);
 	}

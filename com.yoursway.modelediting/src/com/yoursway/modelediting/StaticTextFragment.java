@@ -1,9 +1,9 @@
-package com.yoursway.modelediting.swt.demo;
+package com.yoursway.modelediting;
 
 public class StaticTextFragment extends TextFragment {
 
 	public StaticTextFragment(String text) {
-		super(text);
+		super(text, false, false);
 	}
 
 	@Override

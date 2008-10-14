@@ -1,6 +1,7 @@
 package com.yoursway.modelediting.swt.demo;
 
 import com.yoursway.modelediting.ReplaceImpossibleException;
+import com.yoursway.modelediting.TextFragment;
 
 public class SingleLineFragment extends TextFragment {
 
