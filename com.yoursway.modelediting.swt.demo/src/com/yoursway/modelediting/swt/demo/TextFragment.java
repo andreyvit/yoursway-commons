@@ -8,6 +8,8 @@ public class TextFragment implements Fragment {
 	private String text;
 
 	public TextFragment(String text) {
+		if (text == null)
+			throw new NullPointerException("text is null");
 		this.text = text;
 	}
 

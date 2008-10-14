@@ -18,7 +18,7 @@ public class TextFormModel extends AbstractModel {
 		return fragment.canReplace(startOffset, length);
 	}
 
-	public void replace(Fragment fragment, int startOffset, int length, String text)
+	public void replace(Object sender, Fragment fragment, int startOffset, int length, String text)
 			throws ReplaceImpossibleException {
 		if (fragment == null)
 			throw new NullPointerException("fragment is null");
@@ -30,7 +30,7 @@ public class TextFormModel extends AbstractModel {
 		fragment.replace(startOffset, length, text);
 
 		for (IModelListener listener : listeners)
-			listener.modelChanged(this, fragments.indexOf(fragment), 1, 1);
+			listener.modelChanged(sender, this, fragments.indexOf(fragment), 1, 1);
 	}
 
 }

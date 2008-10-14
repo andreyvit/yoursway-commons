@@ -10,9 +10,9 @@ public interface Model {
 
 	List<Fragment> fragments();
 
-	boolean canReplace(Fragment fragment, int startOffset, int length);
+//	boolean canReplace(Fragment fragment, int startOffset, int length);
 
-	void replace(Fragment fragment, int startOffset, int length, String text)
+	void replace(Object sender, Fragment fragment, int startOffset, int length, String text)
 			throws ReplaceImpossibleException;
 
 }
