@@ -5,3 +5,5 @@ Bundle-SymbolicName: com.yoursway.modelediting.swt.demo
 Bundle-Version: 1.0.0
 Bundle-Vendor: YOURSWAY
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.yoursway.utils;bundle-version="1.0.0",
+ com.yoursway.modelediting;bundle-version="1.0.0"

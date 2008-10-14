@@ -1,4 +1,4 @@
-package com.yoursway.taskus.model;
+package com.yoursway.modelediting;
 
 public class ReplaceImpossibleException extends Exception {
 
