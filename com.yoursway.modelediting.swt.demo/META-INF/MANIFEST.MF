@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Demo Plug-in
+Bundle-SymbolicName: com.yoursway.modelediting.swt.demo
+Bundle-Version: 1.0.0
+Bundle-Vendor: YOURSWAY
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
