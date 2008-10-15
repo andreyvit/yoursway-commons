@@ -10,6 +10,8 @@ public interface IStyledText {
 
 	void setText(String text);
 
+	void replaceTextRange(int start, int length, String text);
+	
 	String getText();
 
 }

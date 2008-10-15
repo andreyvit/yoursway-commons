@@ -18,11 +18,11 @@ public class ModelReconciler implements IModelListener {
 	private class StyledTextListener implements Listener {
 
 		boolean disabled = false;
-		
+
 		public void handleEvent(Event event) {
 			if (disabled)
 				return;
-			if (event.type == SWT.Verify) {		
+			if (event.type == SWT.Verify) {
 				event.doit = false;
 				try {
 					if (canModify(event.start, event.end))
@@ -37,8 +37,11 @@ public class ModelReconciler implements IModelListener {
 
 	private final IStyledText styledText;
 	private final Model model;
-	private StyledTextListener styledTextListener;	
-	private List<Fragment> fragments;
+	private StyledTextListener styledTextListener;
+
+	private int fragmentStarts[];
+	private int fragmentLengths[];
+	private boolean fragmentHasStart[], fragmentHasEnd[];
 
 	public ModelReconciler(IStyledText styledText, Model model) {
 		if (model == null)
@@ -48,7 +51,9 @@ public class ModelReconciler implements IModelListener {
 		this.styledText = styledText;
 		this.model = model;
 
-		fragments = model.fragments();
+		List<Fragment> fragments = model.fragments();
+		
+		indexFragments(fragments);
 
 		StringBuilder text = new StringBuilder();
 		for (Fragment f : fragments) {
@@ -64,13 +69,29 @@ public class ModelReconciler implements IModelListener {
 
 	}
 
+	private void indexFragments(List<Fragment> fragments) {
+		fragmentStarts = new int[fragments.size()];
+		fragmentLengths = new int[fragments.size()];
+		fragmentHasStart = new boolean[fragments.size()];
+		fragmentHasEnd = new boolean[fragments.size()];
+		int i = 0, start = 0;
+		for (Fragment f : fragments) {
+			fragmentStarts[i] = start;
+			fragmentLengths[i] = f.toString().length();
+			fragmentHasStart[i] = f.includesStart();
+			fragmentHasEnd[i] = f.includesEnd();
+			start += fragmentLengths[i];
+			i++;
+		}
+	}
+
 	public int findLeftFragment(int offset, boolean isDeletion) {
 		int position = 0;
 		int index = 0;
-		for (Fragment fragment : fragments) {
-			int intervalStart = position + (fragment.includesStart() || isDeletion ? 0 : 1);
-			int fLength = fragment.toString().length();
-			int intervalEnd = position + (fragment.includesEnd() ? 0 : -1) + fLength;
+		for (int i = 0; i < fragmentStarts.length; i++) {
+			int intervalStart = position + (fragmentHasStart[i] || isDeletion ? 0 : 1);
+			int fLength = fragmentLengths[i];
+			int intervalEnd = position + (fragmentHasEnd[i] ? 0 : -1) + fLength;
 
 			// System.out.println("("+intervalStart+","+intervalEnd+")");
 
@@ -90,10 +111,10 @@ public class ModelReconciler implements IModelListener {
 		int position = 0;
 		int index = 0;
 		int rightmost = -1;
-		for (Fragment fragment : fragments) {
-			int intervalStart = position + (fragment.includesStart() ? 0 : 1);
-			int fLength = fragment.toString().length();
-			int intervalEnd = position + (fragment.includesEnd() || isDeletion ? 0 : -1) + fLength;
+		for (int i = 0; i < fragmentStarts.length; i++) {
+			int intervalStart = position + (fragmentHasStart[i] ? 0 : 1);
+			int fLength = fragmentLengths[i];
+			int intervalEnd = position + (fragmentHasEnd[i] || isDeletion ? 0 : -1) + fLength;
 
 			if (offset < intervalStart - 1)
 				return rightmost;
@@ -111,15 +132,16 @@ public class ModelReconciler implements IModelListener {
 	 * FIXME: speedup by caching fragment offsets
 	 */
 	public int getFragmentOffset(int index) {
-		int pos = 0;
-		int num = 0;
-		for (Fragment fragment : fragments) {
-			if (num == index)
-				return pos;
-			pos += fragment.toString().length();
-			num++;
-		}
-		return pos;
+		// int pos = 0;
+		// int num = 0;
+		// for (int i = 0; i < fragmentLengths.length; i++) {
+		// if (num == index)
+		// return pos;
+		// pos += fragment.toString().length();
+		// num++;
+		// }
+		// return pos;
+		return fragmentStarts[index];
 	}
 
 	public boolean canModify(int start, int end) {
@@ -132,11 +154,11 @@ public class ModelReconciler implements IModelListener {
 		boolean hasModifiableArea = false;
 		for (int i = startFragment; i <= endFragment; i++) {
 			int endOffset;
-			Fragment fragment = fragments.get(i);
+			Fragment fragment = model.fragments().get(i);
 			if (i == endFragment) {
 				endOffset = end - getFragmentOffset(endFragment);
 			} else {
-				endOffset = fragment.toString().length();
+				endOffset = fragmentLengths[i];
 			}
 			startOffset = 0;
 			if (fragment.canReplace(startOffset, endOffset - startOffset)) {
@@ -157,11 +179,11 @@ public class ModelReconciler implements IModelListener {
 		int startOffset = start - getFragmentOffset(startFragment);
 		for (int i = startFragment; i <= endFragment; i++) {
 			int endOffset;
-			Fragment fragment = fragments.get(i);
+			Fragment fragment = model.fragments().get(i);
 			if (i == endFragment)
 				endOffset = end - getFragmentOffset(endFragment);
 			else
-				endOffset = fragment.toString().length();
+				endOffset = fragmentLengths[i];
 			if (fragment.canReplace(startOffset, endOffset - startOffset)) {
 				model.replace(this, fragment, startOffset, endOffset - startOffset, text);
 				text = "";
@@ -175,31 +197,33 @@ public class ModelReconciler implements IModelListener {
 
 	public void modelChanged(Object sender, Model model, int firstFragment, int oldCount,
 			int newCount) {
-		int cutLength = 0, startOffset = 0;
-		for (int i = 0; i < firstFragment + oldCount; i++) {
-			if (i >= firstFragment)
-				cutLength += fragments.get(i).toString().length();
-			else
-				startOffset += fragments.get(i).toString().length();
-		}
-		StringBuilder newText = new StringBuilder();
+		int l = 0;
+		final int startOffset = fragmentStarts[firstFragment];
+		for (int i = firstFragment; i < firstFragment + oldCount; i++)
+			l += fragmentLengths[i];
+		final int cutLength = l;
+		final StringBuilder newText = new StringBuilder();
 		for (int i = firstFragment; i < firstFragment + newCount; i++) {
 			newText.append(model.fragments().get(i));
 		}
-		this.fragments = new ArrayList<Fragment>(model.fragments());
+
+		indexFragments(model.fragments());
 		final String text = styledText.getText();
 		final String text2 = text.substring(0, startOffset) + newText
 				+ text.substring(startOffset + cutLength);
-		Display.getDefault().syncExec(new Runnable(){
+		Display.getDefault().syncExec(new Runnable() {
 
 			public void run() {
 				styledTextListener.disabled = true;
-				if (!text.equals(text2)) 
-					styledText.setText(text2);		
+				if (!text.equals(text2)) {
+					// styledText.replaceTextRange(startOffset, cutLength,
+					// newText.toString());
+					styledText.setText(text2);
+				}
 				styledTextListener.disabled = false;
-				
+
 			}
-			
+
 		});
 	}
 
