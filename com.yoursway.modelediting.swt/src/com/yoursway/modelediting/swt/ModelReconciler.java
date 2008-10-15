@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
@@ -16,9 +17,12 @@ public class ModelReconciler implements IModelListener {
 
 	private class StyledTextListener implements Listener {
 
+		boolean disabled = false;
+		
 		public void handleEvent(Event event) {
-
-			if (event.type == SWT.Verify) {
+			if (disabled)
+				return;
+			if (event.type == SWT.Verify) {		
 				event.doit = false;
 				try {
 					if (canModify(event.start, event.end))
@@ -33,8 +37,7 @@ public class ModelReconciler implements IModelListener {
 
 	private final IStyledText styledText;
 	private final Model model;
-	private StyledTextListener styledTextListener;
-
+	private StyledTextListener styledTextListener;	
 	private List<Fragment> fragments;
 
 	public ModelReconciler(IStyledText styledText, Model model) {
@@ -184,11 +187,20 @@ public class ModelReconciler implements IModelListener {
 			newText.append(model.fragments().get(i));
 		}
 		this.fragments = new ArrayList<Fragment>(model.fragments());
-		String text = styledText.getText();
-		String text2 = text.substring(0, startOffset) + newText
+		final String text = styledText.getText();
+		final String text2 = text.substring(0, startOffset) + newText
 				+ text.substring(startOffset + cutLength);
-		if (!text.equals(text2))
-			styledText.setText(text);
+		Display.getDefault().syncExec(new Runnable(){
+
+			public void run() {
+				styledTextListener.disabled = true;
+				if (!text.equals(text2)) 
+					styledText.setText(text2);		
+				styledTextListener.disabled = false;
+				
+			}
+			
+		});
 	}
 
 	void dispose() {
