@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 import com.yoursway.completion.gui.CompletionController;
+import com.yoursway.document.Document;
+import com.yoursway.document.DocumentPosition;
 
 public class TextEditor {
     private Shell shell;
@@ -37,7 +39,7 @@ public class TextEditor {
 		FillLayout layout = new FillLayout();
 		shell.setLayout(layout);
 		try {
-			new CompletionController(text,new DictionaryCompletion());
+			new CompletionController(text, new DictionaryCompletion());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

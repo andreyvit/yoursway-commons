@@ -22,4 +22,6 @@ public interface CompletionProposalsProvider {
 	 * updates.
 	 */
 	void stopCompletion();
+
+	int getCompletionLength(String text, int caretOffset);
 }

@@ -14,11 +14,11 @@ public class CompletionProposalImpl implements CompletionProposal {
 	}
 
 	public void acceptVisitor(CompletionProposalVisitor visitor) {
-		SimpleCompleionProposalVisitor simpleVisitor = (SimpleCompleionProposalVisitor) visitor;
+		SimpleCompletionProposalVisitor simpleVisitor = (SimpleCompletionProposalVisitor) visitor;
 		simpleVisitor.visit(this);
 	}
 
-	public String completetion() {
+	public String completion() {
 		return text;
 	}
 
@@ -28,7 +28,6 @@ public class CompletionProposalImpl implements CompletionProposal {
 	
 	@Override
 	public String toString() {
-		return completetion();
+		return completion();
 	}
-
 }
