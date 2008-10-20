@@ -21,4 +21,13 @@ public class WinUtils implements OSUtils {
         // windows doesn't use exec file attribute 
     }
     
+    public void openBrowser(String url) throws IOException {
+        String[] cmd = new String[4];
+        cmd[0] = "cmd.exe";
+        cmd[1] = "/C";
+        cmd[2] = "start";
+        cmd[3] = url;
+        Runtime.getRuntime().exec(cmd);
+    }
+    
 }

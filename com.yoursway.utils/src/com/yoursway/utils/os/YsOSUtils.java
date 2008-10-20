@@ -46,4 +46,7 @@ public class YsOSUtils {
         return javaFile.getCanonicalPath();
     }
     
+    public static void openBrowser(String url) throws IOException {
+        os().openBrowser(url);
+    }
 }

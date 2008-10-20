@@ -29,4 +29,7 @@ public class MacUtils implements OSUtils {
         }
     }
     
+    public void openBrowser(String url) throws IOException {
+        Runtime.getRuntime().exec("open " + url);
+    }
 }

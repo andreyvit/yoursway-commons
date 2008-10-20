@@ -20,9 +20,13 @@ public class DebugOutputHelper {
         String simpleName = klass.getSimpleName();
         if (simpleName.length() == 0) {
             String fullName = klass.getName();
-            simpleName = fullName.substring(fullName.lastIndexOf('.') + 1);
+            simpleName = simpleNameOf(fullName);
         }
         return simpleName;
+    }
+
+    public static String simpleNameOf(String fullName) {
+        return fullName.substring(fullName.lastIndexOf('.') + 1);
     }
     
     /**

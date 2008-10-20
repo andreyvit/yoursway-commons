@@ -13,4 +13,6 @@ public interface OSUtils {
     
     String javaRelativePath();
     
+    void openBrowser(String url) throws IOException;
+    
 }

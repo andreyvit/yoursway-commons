@@ -14,11 +14,17 @@ public class Log {
         logger.add(new LogEntry(message, type, place));
     }
     
+    @Deprecated
     public static void write(String message, LogEntryType type) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         write(message, type, stackTrace[3]);
     }
     
+    public static void writeError(String message) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        write(message, LogEntryType.ERROR, stackTrace[3]);
+    }
+
     public static void write(String message) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         write(message, LogEntryType.NOTIFICATION, stackTrace[3]);
