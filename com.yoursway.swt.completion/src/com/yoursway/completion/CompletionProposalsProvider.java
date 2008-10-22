@@ -24,4 +24,6 @@ public interface CompletionProposalsProvider {
 	void stopCompletion();
 
 	int getCompletionLength(String text, int caretOffset);
+
+	boolean isCompletable(char character);
 }

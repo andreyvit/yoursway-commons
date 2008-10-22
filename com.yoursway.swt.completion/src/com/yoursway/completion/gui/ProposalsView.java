@@ -11,8 +11,6 @@
 package com.yoursway.completion.gui;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.FocusAdapter;
@@ -21,7 +19,6 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
@@ -41,7 +38,6 @@ public class ProposalsView{
 	private String[] completionItems;
 	private final Control control;
 	private KeyAdapter simpleKeyListener;
-	private VerifyKeyListener verifyKeyListener;
 
 	public ProposalsView(Control control, CompletionStrategy strategy) {
 		this(control, 0, strategy);
@@ -83,26 +79,19 @@ public class ProposalsView{
 				parentKeyPressed(event);
 			}
 		};
-//		verifyKeyListener = new VerifyKeyListener(){
-//			public void verifyKey(VerifyEvent event) {
-//				parentKeyPressed(event);
-//			}
-//		};
 	}
 	
 	public void hookArrowKeys() {
-		control.addKeyListener(simpleKeyListener);
-//		if(control instanceof StyledText){
-//			((StyledText)control).addVerifyKeyListener(verifyKeyListener);
-//		}
+		if(!control.isDisposed()){
+			//XXX: Since addKeyListener doesn't check for duplicates
+			control.removeKeyListener(simpleKeyListener);
+			control.addKeyListener(simpleKeyListener);
+		}
 	}
 	
 	public void unhookArrowKeys() {
 		if(!control.isDisposed()){
 			control.removeKeyListener(simpleKeyListener);
-//			if(control instanceof StyledText){
-//				((StyledText)control).removeVerifyKeyListener(verifyKeyListener);
-//			}
 		}
 	}
 	
@@ -190,11 +179,13 @@ public class ProposalsView{
 	}
 
 	private void traverseToNextItem() {
+		System.out.println("ProposalsView.traverseToNextItem()");
 		if(getSelectionIndex() < getItemCount()-1)
 			list.setSelection(getSelectionIndex()+1);
 	}
 
 	private void traverseToPrevItem() {
+		System.out.println("ProposalsView.traverseToPrevItem()");
 		if(getSelectionIndex() > 0)
 			list.setSelection(getSelectionIndex()-1);
 	}

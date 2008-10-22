@@ -1,8 +1,5 @@
 package com.yoursway.completion.gui;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Event;
-
 import com.yoursway.completion.gui.CompletionProvider.DisplayState;
 
 public class CompletionStrategy{

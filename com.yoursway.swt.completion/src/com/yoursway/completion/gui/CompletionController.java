@@ -17,7 +17,6 @@ import org.eclipse.swt.widgets.Listener;
 import com.yoursway.completion.CompletionProposal;
 import com.yoursway.completion.CompletionProposalUpdatesListener;
 import com.yoursway.completion.CompletionProposalsProvider;
-import com.yoursway.document.Document;
 
 public class CompletionController implements CompletionProposalUpdatesListener, CompletionProvider {
 	private static final int LONG_CLICK_THRESHOLD = 100;
@@ -66,6 +65,27 @@ public class CompletionController implements CompletionProposalUpdatesListener, 
 			};
 	}
 
+	/**
+	 * Commands are ignored when tab is pressed
+	 */
+	boolean isCommand(char character, int keyCode){
+		return character == SWT.CR || (keyCode & SWT.KEYCODE_BIT) != 0;
+	}
+	
+	/**
+	 * Completables are applied when tab is pressed
+	 */
+	boolean isCompletable(char character, int keyCode){
+		return proposalsProvider.isCompletable(character) || character == SWT.BS;
+	}
+	
+	/**
+	 * Stoppers finish the completion when tab is pressed
+	 */
+	boolean isStopper(char character, int keyCode){
+		return !(isCommand(character, keyCode) || isCompletable(character, keyCode));
+	}
+	
 	private void setListeners() {
 		styledText.addVerifyKeyListener(new VerifyKeyListener(){
 			public void verifyKey(VerifyEvent event) {
@@ -79,15 +99,11 @@ public class CompletionController implements CompletionProposalUpdatesListener, 
 						tabNotPressed = false;
 					}
 					event.doit = false;
-				} else if (event.character == SWT.CR 
-						|| event.keyCode == SWT.ARROW_UP
-						|| event.keyCode == SWT.ARROW_DOWN
-						|| event.keyCode == SWT.ARROW_LEFT
-						|| event.keyCode == SWT.ARROW_RIGHT) 
-				{
-					if(!tabNotPressed)
-						event.doit = false;
-				} else {
+				} else if (isCommand(event.character, event.keyCode) && !tabNotPressed) {
+					event.doit = false;
+				} else if (isStopper(event.character, event.keyCode)){
+					strategy.tabReleased();
+				} else if (isCompletable(event.character, event.keyCode)){
 					strategy.keyPressed();
 				}
 			}

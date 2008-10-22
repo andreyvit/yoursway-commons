@@ -51,7 +51,7 @@ public class DictionaryCompletion implements CompletionProposalsProvider {
 		return proposals;
 	}
 
-	boolean isCompletable(char c){
+	public boolean isCompletable(char c){
 		return Character.isLetterOrDigit(c) || c == '_';
 	}
 	
