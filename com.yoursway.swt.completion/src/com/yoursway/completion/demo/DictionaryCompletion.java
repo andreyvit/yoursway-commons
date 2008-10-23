@@ -22,9 +22,12 @@ public class DictionaryCompletion implements CompletionProposalsProvider {
 	private static final int SUBSTR_DIFF = -1;
 	private ArrayList<String> words;
 
-	public DictionaryCompletion() throws IOException {
+	public DictionaryCompletion() {
+		
 		URL dictionary = Activator.getInstance().getBundle().getEntry("resources/dictionary.txt");
-		InputStreamReader inputStreamReader = new InputStreamReader(dictionary.openStream());
+		InputStreamReader inputStreamReader;
+		try {
+			inputStreamReader = new InputStreamReader(dictionary.openStream());
 		LineNumberReader lnr = new LineNumberReader(inputStreamReader);
 		words = new ArrayList<String>();
 		for (String line = lnr.readLine(); line != null; line = lnr.readLine()) {
@@ -32,6 +35,10 @@ public class DictionaryCompletion implements CompletionProposalsProvider {
 		}
 		lnr.close();
 		Collections.sort(words);
+		} catch (IOException e) {
+			e.printStackTrace();
+			words.add("silly");
+		}
 	}
 
 	private List<CompletionProposalImpl> proposalsList(String substring) {
@@ -55,9 +62,9 @@ public class DictionaryCompletion implements CompletionProposalsProvider {
 		return Character.isLetterOrDigit(c) || c == '_';
 	}
 	
-	public void startCompletionFor(final CompletionProposalUpdatesListener listener, String text, int caretOffset) {
+	public void startCompletionFor(final CompletionProposalUpdatesListener listener, CharSequence text, int caretOffset) {
 		int beginIndex = findStartOfWord(text, caretOffset);
-		String substring = text.substring(beginIndex, caretOffset);
+		String substring = text.subSequence(beginIndex, caretOffset).toString();
 
 		final List<CompletionProposalImpl> proposals = proposalsList(substring);
 
@@ -74,19 +81,14 @@ public class DictionaryCompletion implements CompletionProposalsProvider {
 		});
 	}
 
-	private int findStartOfWord(String text, int caretOffset) {
+	public void stopCompletion() {
+	}
+
+	public int findStartOfWord(CharSequence text, int caretOffset) {
 		int beginIndex = caretOffset - 1;
 		while(beginIndex>=0 && isCompletable(text.charAt(beginIndex))){
 			beginIndex --;
 		}
 		return beginIndex + 1;
 	}
-
-	public void stopCompletion() {
-	}
-
-	public int getCompletionLength(String text, int caretOffset) {
-		return caretOffset - findStartOfWord(text, caretOffset);
-	}
-
 }

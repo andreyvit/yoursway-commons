@@ -15,7 +15,7 @@ public interface CompletionProposalsProvider {
 	 * @param cursorIndex cursor position in the text.
 	 * */
 	void startCompletionFor(CompletionProposalUpdatesListener listener,
- 			String text, int cursorIndex);
+			CharSequence text, int cursorIndex);
 
 	/**
 	 * Stop calculation of completion proposals and notifying the listener about
@@ -23,7 +23,7 @@ public interface CompletionProposalsProvider {
 	 */
 	void stopCompletion();
 
-	int getCompletionLength(String text, int caretOffset);
-
 	boolean isCompletable(char character);
+
+	int findStartOfWord(CharSequence text, int caretOffset);
 }

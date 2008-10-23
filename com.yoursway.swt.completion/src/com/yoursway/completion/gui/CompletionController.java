@@ -171,10 +171,10 @@ public class CompletionController implements CompletionProposalUpdatesListener, 
 
 		CompletionProposal proposal = proposals.get(currentIndex);
 		int end = styledText.getCaretOffset();
-		int length = proposalsProvider.getCompletionLength(styledText.getText(), end);
-		int start = end - length;
+		
+		int start = proposalsProvider.findStartOfWord(styledText.getText(), end);
 		String completion = proposal.completion();
-		styledText.replaceTextRange(start, length, completion);
+		styledText.replaceTextRange(start, end - start + 1, completion);
 		styledText.setCaretOffset(start + completion.length());
 		proposalsView.unhookArrowKeys();
 	}
