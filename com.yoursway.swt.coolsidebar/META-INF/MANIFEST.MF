@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Cool Sidebar
+Bundle-SymbolicName: com.yoursway.swt.coolsidebar
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.swt;bundle-version="3.4.0",
+ com.yoursway.swt.scrollbar;bundle-version="1.0.0",
+ com.yoursway.utils;bundle-version="1.0.0",
+ org.eclipse.jface;bundle-version="3.4.0",
+ com.google.collections;bundle-version="1.0.0"
+Export-Package: com.yoursway.swt.coolsidebar,
+ com.yoursway.swt.coolsidebar.viewmodel
