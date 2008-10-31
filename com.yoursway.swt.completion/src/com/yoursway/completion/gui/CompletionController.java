@@ -174,12 +174,13 @@ public class CompletionController implements CompletionProposalUpdatesListener, 
 		
 		int start = proposalsProvider.findStartOfWord(styledText.getText(), end);
 		String completion = proposal.completion();
-		styledText.replaceTextRange(start, end - start + 1, completion);
+		styledText.replaceTextRange(start, end - start, completion);
 		styledText.setCaretOffset(start + completion.length());
 		proposalsView.unhookArrowKeys();
 	}
 
 	public void show(DisplayState state) {
+		if(proposalsView.isDisposed()) return;
 		proposalsView.setLocation(completionLocation());
 		//System.out.println("STATE:", state);
 		proposalsView.show(state);

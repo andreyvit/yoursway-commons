@@ -122,6 +122,7 @@ public class ProposalsView{
 	}
 
 	public void setItems(String[] strings) {
+		if(list.isDisposed()) return;
 		list.setItems(strings);
 		completionItems = strings;
 		if(strings == IN_PROGRESS){
@@ -179,13 +180,11 @@ public class ProposalsView{
 	}
 
 	private void traverseToNextItem() {
-		System.out.println("ProposalsView.traverseToNextItem()");
 		if(getSelectionIndex() < getItemCount()-1)
 			list.setSelection(getSelectionIndex()+1);
 	}
 
 	private void traverseToPrevItem() {
-		System.out.println("ProposalsView.traverseToPrevItem()");
 		if(getSelectionIndex() > 0)
 			list.setSelection(getSelectionIndex()-1);
 	}
@@ -201,5 +200,9 @@ public class ProposalsView{
 			traverseToPrevItem();
 			e.doit = false;
 		}
+	}
+
+	public boolean isDisposed() {
+		return list.isDisposed() || shell.isDisposed();
 	}
 }
