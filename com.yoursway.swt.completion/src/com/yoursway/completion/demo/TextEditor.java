@@ -38,11 +38,7 @@ public class TextEditor {
         
 		FillLayout layout = new FillLayout();
 		shell.setLayout(layout);
-		try {
-			new CompletionController(text, new DictionaryCompletion());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		new CompletionController(text, new DictionaryCompletion());
 		shell.open();
     }
     
