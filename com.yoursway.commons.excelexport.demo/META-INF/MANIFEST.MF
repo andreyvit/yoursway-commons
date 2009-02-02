@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Excel Export Demo
+Bundle-SymbolicName: com.yoursway.commons.excelexport.demo
+Bundle-Version: 1.0.0
+Bundle-Vendor: YourSway
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.yoursway.commons.excelexport;bundle-version="1.0.0",
+ com.yoursway.utils;bundle-version="1.0.0"
