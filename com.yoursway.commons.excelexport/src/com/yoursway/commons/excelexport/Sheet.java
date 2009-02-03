@@ -10,8 +10,11 @@ public class Sheet {
     private final int ordinal;
     
     private final List<Row> rows = new ArrayList<Row>();
+    private final List<Column> columns = new ArrayList<Column>();
     
-    public Sheet(int ordinal, String name) {
+    public Sheet(Workbook workbook, int ordinal, String name) {
+        if (workbook == null)
+            throw new NullPointerException("workbook is null");
         if (name == null)
             throw new NullPointerException("name is null");
         this.ordinal = ordinal;
@@ -29,19 +32,29 @@ public class Sheet {
     
     public Row row(int ordinal) {
         while (rows.size() < ordinal)
-            rows.add(new Row(rows.size() + 1));
+            rows.add(new Row(this, rows.size() + 1));
         return rows.get(ordinal - 1);
     }
     
-    public int columnCount() {
-        int columns = 0;
-        for (Row row : rows)
-            columns = Math.max(columns, row.cells().size());
-        return columns;
+    public Column column(int ordinal) {
+        while (columns.size() < ordinal)
+            columns.add(new Column(this, columns.size() + 1));
+        return columns.get(ordinal - 1);
     }
     
-    public Cell bottomRightCell() {
-        return row(rows.size()).cell(columnCount());
+    public List<Column> columns() {
+        return Collections.unmodifiableList(columns);
+    }
+    
+    public int columnCount() {
+        int count = columns.size();;
+        for (Row row : rows)
+            count = Math.max(count, row.cells().size());
+        return count;
+    }
+    
+    public Range range() {
+        return new Range(cell(1, 1), cell(rows.size(), columns.size()));
     }
     
     public Cell cell(int row, int cell) {
@@ -51,5 +64,5 @@ public class Sheet {
     public List<Row> rows() {
         return Collections.unmodifiableList(rows);
     }
-    
+ 
 }

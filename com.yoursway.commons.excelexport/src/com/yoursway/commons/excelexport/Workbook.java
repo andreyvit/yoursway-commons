@@ -9,19 +9,25 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.yoursway.commons.excelexport.internal.RuntimeIOException;
-import com.yoursway.commons.excelexport.internal.SharedStringPool;
+import com.yoursway.commons.excelexport.internal.Pool;
 import com.yoursway.commons.excelexport.internal.Theme;
 import com.yoursway.utils.XmlWriter;
 import com.yoursway.utils.YsFileUtils;
 
 public class Workbook {
     
-    private SharedStringPool stringPool = new SharedStringPool();
+    private Pool<String> stringPool = Pool.create();
+    
+    private Pool<Fill> fillPool = Pool.create();
+    
+    private Pool<BorderSet> borderPool = Pool.create();
+    
+    private Pool<CellFormat> formatPool = Pool.create();
     
     private List<Sheet> sheets = new ArrayList<Sheet>();
     
     public Sheet addSheet(String name) {
-        Sheet sheet = new Sheet(sheets.size() + 1, name);
+        Sheet sheet = new Sheet(this, sheets.size() + 1, name);
         sheets.add(sheet);
         return sheet;
     }
@@ -54,11 +60,11 @@ public class Workbook {
         zip.putNextEntry(new ZipEntry("xl/_rels/workbook.xml.rels"));
         writeWorkbookRelsXml(zip);
         
-        zip.putNextEntry(new ZipEntry("xl/styles.xml"));
-        writeStylesXml(zip);
-        
         zip.putNextEntry(new ZipEntry("xl/theme/theme1.xml"));
         YsFileUtils.transfer(Theme.getThemeFileAsStream(), zip);
+        
+        zip.putNextEntry(new ZipEntry("xl/styles.xml"));
+        writeStylesXml(zip);
         
         zip.putNextEntry(new ZipEntry("xl/workbook.xml"));
         writeWorkbookXml(zip);
@@ -203,25 +209,38 @@ public class Workbook {
                 .tag("family", "val", "2").tag("scheme", "val", "minor").end();
         xml.end();
         
-        xml.start("fills", "count", "3");
-        xml.start("fill").tag("patternFill", "patternType", "none").end();
-        xml.start("fill").tag("patternFill", "patternType", "gray125").end();
-        xml.start("fill").start("patternFill", "patternType", "solid").tag("fgColor", "rgb", "FFFF0000").tag(
-            "bgColor", "indexed", "64").end().end();
+        formatPool.add(CellFormat.DEFAULT);
+        for (Sheet sheet : sheets)
+            for (Row row : sheet.rows())
+                for (Cell cell : row.cells())
+                    formatPool.add(cell.format());
+        
+        // first two indexes seem to be special-cased in Excel
+        fillPool.add(Fill.NONE);
+        fillPool.add(Fill.GRAY125);
+        for (CellFormat format : formatPool.entireSequence())
+            fillPool.add(format.fill());
+        
+        borderPool.add(BorderSet.DEFAULT);
+        for (CellFormat format : formatPool.entireSequence())
+            borderPool.add(format.borderSet());
+        
+        List<Fill> fills = fillPool.entireSequence();
+        xml.start("fills", "count", "" + fills.size());
+        for (Fill fill : fills) {
+            xml.start("fill");
+            fill.encode(xml);
+            xml.end();
+        }
         xml.end();
         
-        xml.start("borders", "count", "4");
-        xml.start("border").tag("left").tag("right").tag("top").tag("bottom").tag("diagonal").end();
-        xml.start("border").start("left", "style", "thin").tag("color", "indexed", "64").end().start("right",
-            "style", "thin").tag("color", "indexed", "64").end().start("top", "style", "thin").tag("color",
-            "indexed", "64").end().start("bottom", "style", "thin").tag("color", "indexed", "64").end().tag(
-            "diagonal").end();
-        xml.start("border").start("left", "style", "thin").tag("color", "indexed", "64").end().tag("right")
-                .start("top", "style", "thin").tag("color", "indexed", "64").end().start("bottom", "style",
-                    "thin").tag("color", "indexed", "64").end().tag("diagonal").end();
-        xml.start("border").tag("left").start("right", "style", "thin").tag("color", "indexed", "64").end()
-                .start("top", "style", "thin").tag("color", "indexed", "64").end().start("bottom", "style",
-                    "thin").tag("color", "indexed", "64").end().tag("diagonal").end();
+        List<BorderSet> borders = borderPool.entireSequence();
+        xml.start("borders", "count", "" + borders.size());
+        for (BorderSet borderSet : borders) {
+            xml.start("border");
+            borderSet.encode(xml);
+            xml.end();
+        }
         xml.end();
         
         xml.start("cellStyleXfs", "count", "1");
@@ -229,16 +248,20 @@ public class Workbook {
         xml.end();
         
         xml.start("cellXfs", "count", "4");
-        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "0", "borderId", "0").attr("xfId", "0")
-                .end();
-        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "0", "borderId", "1").attr("xfId", "0")
-                .attr("applyBorder", "1").end();
-        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "2", "borderId", "2").attr("xfId", "0")
-                .attr("applyFill", "1").attr("applyBorder", "1").attr("applyAlignment", "1").tag("alignment",
-                    "horizontal", "center").end();
-        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "2", "borderId", "3").attr("xfId", "0")
-                .attr("applyFill", "1").attr("applyBorder", "1").attr("applyAlignment", "1").tag("alignment",
-                    "horizontal", "center").end();
+        for (CellFormat format : formatPool.entireSequence()) {
+            xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "" + fillPool.retrieve(format.fill()),
+                "borderId", "" + borderPool.retrieve(format.borderSet())).attr("xfId", "0");
+            format.encode(xml);
+            xml.end();
+        }
+        //        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "0", "borderId", "1").attr("xfId", "0")
+        //                .attr("applyBorder", "1").end();
+        //        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "2", "borderId", "2").attr("xfId", "0")
+        //                .attr("applyFill", "1").attr("applyBorder", "1").attr("applyAlignment", "1").tag("alignment",
+        //                    "horizontal", "center").end();
+        //        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "2", "borderId", "3").attr("xfId", "0")
+        //                .attr("applyFill", "1").attr("applyBorder", "1").attr("applyAlignment", "1").tag("alignment",
+        //                    "horizontal", "center").end();
         xml.end();
         
         xml.start("cellStyles", "count", "1");
@@ -279,10 +302,21 @@ public class Workbook {
         xml.xmlHeader("standalone", "yes");
         xml.start("worksheet").xmlns("http://schemas.openxmlformats.org/spreadsheetml/2006/main").xmlns("r",
             "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
-        xml.tag("dimension", "ref", "A1:" + sheet.bottomRightCell().name());
+        xml.tag("dimension", "ref", sheet.range().name());
         xml.start("sheetViews").start("sheetView", "workbookViewId", "0").end().end();
         // .tag("selection", "activeCell", "B8", "sqref", "B8")
         xml.tag("sheetFormatPr", "defaultRowHeight", "15");
+        
+        boolean shouldEncodeCols = false;
+        for (Column column : sheet.columns())
+            shouldEncodeCols |= column.shouldEncode();
+        if (shouldEncodeCols) {
+            xml.start("cols");
+            for (Column column : sheet.columns())
+                if (column.shouldEncode())
+                    column.encode(xml);
+            xml.end();
+        }
         
         xml.start("sheetData");
         
@@ -292,6 +326,9 @@ public class Workbook {
             xml.start("row", "r", "" + row.ordinal(), "spans", "1:" + cells.size());
             for (Cell cell : cells) {
                 xml.start("c", "r", cell.name());
+                int formatId = formatPool.retrieve(cell.format());
+                if (formatId != 0)
+                    xml.attr("s", "" + formatId);
                 cell.acceptContentVisitor(new ContentVisitor() {
                     public void visitNullContent() {
                     }
@@ -316,7 +353,7 @@ public class Workbook {
         if (!mergedCells.isEmpty()) {
             xml.start("mergeCells");
             for (Cell cell : mergedCells)
-                xml.tag("mergeCell", "ref", cell.name() + ":" + cell.finalMergedCell().name());
+                xml.tag("mergeCell", "ref", cell.span().name());
             xml.end();
         }
         
