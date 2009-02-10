@@ -208,7 +208,7 @@ public class YsFileUtils {
     }
     
     public static void transfer(InputStream in, OutputStream out) throws IOException {
-        byte[] buf = allocateBuffer();
+        byte[] buf = new byte[1024 * 1024];
         int len;
         while ((len = in.read(buf)) > 0)
             out.write(buf, 0, len);
@@ -222,10 +222,6 @@ public class YsFileUtils {
             out.write(buf, 0, len);
             done += len;
         }
-    }
-    
-    private static byte[] allocateBuffer() {
-        return new byte[1024 * 1024];
     }
     
     public static File createTempFolder(String prefix, String suffix) throws IOException {
@@ -439,6 +435,20 @@ public class YsFileUtils {
     
     public static boolean isBogusFile(String name) {
         return Pattern.compile("^([._](git|svn|darcs)|CVS|\\.DS_Store)$").matcher(name).find();
+    }
+    
+    public static boolean isSameFile(File first, File second) {
+    	try {
+			first = first.getCanonicalFile();
+		} catch (IOException e) {
+			first = first.getAbsoluteFile();
+		}
+		try {
+			second = second.getCanonicalFile();
+		} catch (IOException e) {
+			second = second.getAbsoluteFile();
+		}
+		return first.equals(second);
     }
     
 }
