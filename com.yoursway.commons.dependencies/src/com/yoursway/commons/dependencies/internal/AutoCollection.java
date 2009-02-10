@@ -3,6 +3,7 @@ package com.yoursway.commons.dependencies.internal;
 import java.util.Collection;
 import java.util.Iterator;
 
+import com.yoursway.commons.dependencies.IdentityObject;
 import com.yoursway.utils.disposable.Disposable;
 import com.yoursway.utils.disposable.Disposer;
 import com.yoursway.utils.disposable.UndoableDisposer;
@@ -11,8 +12,8 @@ public class AutoCollection<T extends Disposer> implements Collection<T>, Dispos
 
 	private final ObservableCollection<T> collection;
 
-	public AutoCollection(Disposer disposer, Collection<T> storage) {
-		this.collection = new ObservableCollection<T>(disposer, storage);
+	public AutoCollection(IdentityObject owner, Collection<T> storage) {
+		this.collection = new ObservableCollection<T>(owner, storage);
 	}
 
 	public boolean addAll(Collection<? extends T> c) {

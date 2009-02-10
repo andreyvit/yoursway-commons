@@ -3,17 +3,17 @@ package com.yoursway.commons.dependencies.internal;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.yoursway.commons.dependencies.Observable;
-import com.yoursway.commons.dependencies.ObservableImpl;
-import com.yoursway.utils.disposable.Disposer;
+import com.yoursway.commons.dependencies.IdentityObject;
+import com.yoursway.commons.dependencies.Mutable;
+import com.yoursway.commons.dependencies.MutableValueObject;
 
-public class ObservableCollection<T> extends ObservableImpl implements
-		Observable, Collection<T> {
+public class ObservableCollection<T> extends MutableValueObject implements Mutable,
+		Collection<T> {
 
 	private final Collection<T> collection;
 
-	public ObservableCollection(Disposer disposer, Collection<T> collection) {
-		super(disposer);
+	public ObservableCollection(IdentityObject owner, Collection<T> collection) {
+		super(owner);
 		if (collection == null)
 			throw new NullPointerException("collection is null");
 		this.collection = collection;

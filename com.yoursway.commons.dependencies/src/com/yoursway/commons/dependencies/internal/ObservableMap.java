@@ -4,21 +4,16 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import com.yoursway.commons.dependencies.ObservableImpl;
-import com.yoursway.utils.disposable.Disposer;
+import com.yoursway.commons.dependencies.IdentityObject;
+import com.yoursway.commons.dependencies.MutableValueObject;
 
-public class ObservableMap<K, V> extends ObservableImpl implements Map<K, V> {
+public class ObservableMap<K, V> extends MutableValueObject implements Map<K, V> {
 
 	private final Map<K, V> map;
 
-	public ObservableMap(Disposer disposer, Map<K, V> map) {
-		super(disposer);
+	public ObservableMap(IdentityObject owner, Map<K, V> map) {
+		super(owner);
 		this.map = map;
-	}
-
-	public static <K, V> ObservableMap<K, V> create(Disposer disposer,
-			Map<K, V> map) {
-		return new ObservableMap<K, V>(disposer, map);
 	}
 
 	public void clear() {

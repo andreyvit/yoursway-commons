@@ -1,15 +1,15 @@
 package com.yoursway.commons.dependencies.internal;
 
+import com.yoursway.commons.dependencies.IdentityObject;
+import com.yoursway.commons.dependencies.MutableValueObject;
 import com.yoursway.commons.dependencies.NullableValue;
-import com.yoursway.commons.dependencies.ObservableImpl;
-import com.yoursway.utils.disposable.Disposer;
 
-public class NullableObservableValue<T> extends ObservableImpl implements NullableValue<T> {
+public class NullableObservableValue<T> extends MutableValueObject implements NullableValue<T> {
 
 	private T value;
 
-	public NullableObservableValue(Disposer disposer, T initialValue) {
-		super(disposer);
+	public NullableObservableValue(IdentityObject owner, T initialValue) {
+		super(owner);
 		this.value = initialValue;
 	}
 

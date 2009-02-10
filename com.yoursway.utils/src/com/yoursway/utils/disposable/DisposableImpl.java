@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +29,11 @@ public abstract class DisposableImpl implements Disposable, Disposer,
 		this(Collections.singleton(parent));
 	}
 
-	public DisposableImpl(Collection<Disposer> parents) {
+	public DisposableImpl(Disposer... parents) {
+		this(Arrays.asList(parents));
+	}
+
+	public DisposableImpl(Collection<? extends Disposer> parents) {
 		this.parents = new ArrayList<UndoableDisposer>(parents.size());
 		for (Disposer parent : parents)
 			this.parents.add(parent.alsoDispose(this));

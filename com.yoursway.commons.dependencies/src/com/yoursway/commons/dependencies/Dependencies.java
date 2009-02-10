@@ -23,49 +23,52 @@ public class Dependencies {
 		currentChangeListener.runWith(runnable, collector);
 	}
 
-	static void reading(Observable observable) {
+	static void reading(Mutable observable) {
 		DependencyCollector collector = currentChangeListener.get();
 		if (collector != null)
 			collector.dependency(observable);
 	}
 
-	public static <K, V> Map<K, V> automap(Disposer disposer,
+	public static <K, V> Map<K, V> automap(IdentityObject owner,
 			Collection<K> keys, Mapping<K, V> mapping) {
-		return new AutoMapper<K, V>(disposer, keys, mapping).map();
+		return new AutoMapper<K, V>(owner, keys, mapping).map();
 	}
 
 	public static <T extends Disposer> Collection<T> compositionCollection(
-			Disposer disposer, Collection<T> storage) {
-		return new AutoCollection<T>(disposer, storage);
+			IdentityObject owner, Collection<T> storage) {
+		return new AutoCollection<T>(owner, storage);
 	}
 
 	public static <T extends Disposer> Collection<T> compositionCollection(
-			Disposer disposer) {
-		return compositionCollection(disposer, new ArrayList<T>());
-	}
-	
-	public static <T> List<T> observableList(Disposer disposer) {
-		return observableList(disposer, new ArrayList<T>());
+			IdentityObject owner) {
+		return compositionCollection(owner, new ArrayList<T>());
 	}
 
-	public static <T> List<T> observableList(Disposer disposer, List<T> list) {
-		return new ObservableList<T>(disposer, list);
+	public static <T> List<T> observableList(IdentityObject owner) {
+		return observableList(owner, new ArrayList<T>());
 	}
 
-	public static <K, V> Map<K, V> observable(Disposer disposer, Map<K, V> map) {
-		return new ObservableMap<K, V>(disposer, map);
+	public static <T> List<T> observableList(IdentityObject owner, List<T> list) {
+		return new ObservableList<T>(owner, list);
 	}
 
-	public static <T> Value<T> observableValue(Disposer disposer, T initial) {
-		return new ObservableValue<T>(disposer, initial);
+	public static <K, V> Map<K, V> observable(IdentityObject owner,
+			Map<K, V> map) {
+		return new ObservableMap<K, V>(owner, map);
 	}
-	
-	public static <T> NullableValue<T> observableNullableValue(Disposer disposer) {
-		return observableNullableValue(disposer, null);
+
+	public static <T> Value<T> observableValue(IdentityObject owner, T initial) {
+		return new ObservableValue<T>(owner, initial);
 	}
-	
-	public static <T> NullableValue<T> observableNullableValue(Disposer disposer, T initial) {
-		return new NullableObservableValue<T>(disposer, initial);
+
+	public static <T> NullableValue<T> observableNullableValue(
+			IdentityObject owner) {
+		return observableNullableValue(owner, null);
+	}
+
+	public static <T> NullableValue<T> observableNullableValue(
+			IdentityObject owner, T initial) {
+		return new NullableObservableValue<T>(owner, initial);
 	}
 
 }

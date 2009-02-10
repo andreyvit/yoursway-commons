@@ -4,27 +4,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import com.yoursway.utils.bugs.Bugs;
-import com.yoursway.utils.disposable.DisposableImpl;
-import com.yoursway.utils.disposable.Disposer;
+import com.yoursway.utils.disposable.Disposable;
 
-public class ObservableImpl extends DisposableImpl implements
-		Observable {
+public class MutableValueObject extends ValueObject implements Mutable {
 
 	private final Collection<Observer> listeners = new ArrayList<Observer>();
 
-	public ObservableImpl(Disposer parent) {
-		super(parent);
+	public MutableValueObject(IdentityObject owner) {
+		super(owner);
+		alsoDispose(new Disposable() {
+			public void dispose() {
+				didChange();
+			}
+		});
 	}
 
-	public ObservableImpl(Collection<Disposer> parents) {
-		super(parents);
-	}
-
-	@Override
-	protected final void deliverDisposedNotification() {
-		didChange();
-	}
-	
 	protected final void willQuery() {
 		Dependencies.reading(this);
 	}

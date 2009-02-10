@@ -7,29 +7,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.yoursway.commons.dependencies.internal.ObservableMap;
-import com.yoursway.utils.disposable.DisposableImpl;
-import com.yoursway.utils.disposable.Disposer;
-
-public class AutoMapper<K, V> extends DisposableImpl implements
-		Runnable {
+public class AutoMapper<K, V> extends ValueObject implements Runnable {
 
 	private final Collection<K> keys;
 
-	private final Map<K, V> map = ObservableMap.create(this, new HashMap<K, V>());
+	private final Map<K, V> map;
 
-	private final Map<K, V> unmodMap = Collections.unmodifiableMap(map);
+	private final Map<K, V> unmodMap;
 
 	private final Mapping<K, V> mapping;
 
-	public AutoMapper(Disposer parent, Collection<K> keys, Mapping<K, V> mapping) {
-		super(parent);
+	public AutoMapper(IdentityObject owner, Collection<K> keys,
+			Mapping<K, V> mapping) {
+		super(owner);
 		if (keys == null)
 			throw new NullPointerException("keys is null");
 		if (mapping == null)
 			throw new NullPointerException("mapping is null");
 		this.keys = keys;
 		this.mapping = mapping;
+		this.map = Dependencies.observable(owner, new HashMap<K, V>());
+		this.unmodMap = Collections.unmodifiableMap(map);
 	}
 
 	public Map<K, V> map() {
@@ -42,7 +40,7 @@ public class AutoMapper<K, V> extends DisposableImpl implements
 			if (map.containsKey(key))
 				oldKeys.remove(key);
 			else
-				new Rerun(this) {
+				new DependentSection(this) {
 
 					public void run() {
 						map.put(key, mapping.map(key));

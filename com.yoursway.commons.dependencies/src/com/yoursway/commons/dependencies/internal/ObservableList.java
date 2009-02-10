@@ -5,24 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import com.yoursway.commons.dependencies.Observable;
-import com.yoursway.commons.dependencies.ObservableImpl;
-import com.yoursway.utils.disposable.Disposer;
+import com.yoursway.commons.dependencies.IdentityObject;
+import com.yoursway.commons.dependencies.Mutable;
+import com.yoursway.commons.dependencies.MutableValueObject;
 
-public class ObservableList<T> extends ObservableImpl implements Observable,
+public class ObservableList<T> extends MutableValueObject implements Mutable,
 		List<T> {
 
 	private final List<T> list;
 
-	public ObservableList(Disposer disposer, List<T> list) {
-		super(disposer);
+	public ObservableList(IdentityObject owner, List<T> list) {
+		super(owner);
 		if (list == null)
 			throw new NullPointerException("list is null");
 		this.list = list;
-	}
-
-	public static <T> ObservableList<T> create(Disposer disposer, List<T> list) {
-		return new ObservableList<T>(disposer, list);
 	}
 
 	public void add(int index, T element) {

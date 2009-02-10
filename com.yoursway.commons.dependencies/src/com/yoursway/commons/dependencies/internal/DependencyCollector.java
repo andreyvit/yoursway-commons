@@ -1,9 +1,9 @@
 package com.yoursway.commons.dependencies.internal;
 
-import com.yoursway.commons.dependencies.Observable;
+import com.yoursway.commons.dependencies.Mutable;
 
 public interface DependencyCollector {
 	
-	void dependency(Observable observable);
+	void dependency(Mutable observable);
 
 }
