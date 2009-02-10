@@ -254,14 +254,6 @@ public class Workbook {
             format.encode(xml);
             xml.end();
         }
-        //        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "0", "borderId", "1").attr("xfId", "0")
-        //                .attr("applyBorder", "1").end();
-        //        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "2", "borderId", "2").attr("xfId", "0")
-        //                .attr("applyFill", "1").attr("applyBorder", "1").attr("applyAlignment", "1").tag("alignment",
-        //                    "horizontal", "center").end();
-        //        xml.start("xf", "numFmtId", "0", "fontId", "0", "fillId", "2", "borderId", "3").attr("xfId", "0")
-        //                .attr("applyFill", "1").attr("applyBorder", "1").attr("applyAlignment", "1").tag("alignment",
-        //                    "horizontal", "center").end();
         xml.end();
         
         xml.start("cellStyles", "count", "1");

@@ -8,8 +8,12 @@ public class Border {
     
     public static final Border NONE = new Border(BorderStyle.NONE, Color.AUTO); 
     
+    public static final Border DOTTED = new Border(BorderStyle.DOTTED, Color.AUTO); 
+    
     public static final Border THIN = new Border(BorderStyle.THIN, Color.AUTO); 
     
+    public static final Border MEDIUM = new Border(BorderStyle.MEDIUM, Color.AUTO); 
+
     public static final Border THICK = new Border(BorderStyle.THICK, Color.AUTO); 
     
     private final BorderStyle style;
@@ -31,6 +35,37 @@ public class Border {
         xml.start("color");
         color.encode(xml);
         xml.end();
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((color == null) ? 0 : color.hashCode());
+        result = prime * result + ((style == null) ? 0 : style.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Border other = (Border) obj;
+        if (color == null) {
+            if (other.color != null)
+                return false;
+        } else if (!color.equals(other.color))
+            return false;
+        if (style == null) {
+            if (other.style != null)
+                return false;
+        } else if (!style.equals(other.style))
+            return false;
+        return true;
     }
     
 }

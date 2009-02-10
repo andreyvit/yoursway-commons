@@ -4,7 +4,13 @@ public enum BorderStyle {
     
     NONE(null),
     
+    DOTTED("dotted"),
+    
+    DASHED("hair"),
+    
     THIN("thin"),
+    
+    MEDIUM("medium"),
     
     THICK("thick"),
     

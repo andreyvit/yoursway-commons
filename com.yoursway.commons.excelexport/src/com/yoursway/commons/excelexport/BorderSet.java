@@ -39,5 +39,30 @@ public class BorderSet {
             xml.end();
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((borders == null) ? 0 : borders.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BorderSet other = (BorderSet) obj;
+        if (borders == null) {
+            if (other.borders != null)
+                return false;
+        } else if (!borders.equals(other.borders))
+            return false;
+        return true;
+    }
     
 }
