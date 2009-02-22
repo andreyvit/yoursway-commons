@@ -12,23 +12,6 @@ public class DebugOutputHelper {
     
     private static ThreadLocal<Map<Object, Object>> objectsBeingPrinted = new ThreadLocal<Map<Object, Object>>();
     
-    public static String simpleNameOf(Object instance) {
-        return simpleNameOf(instance.getClass());
-    }
-    
-    public static String simpleNameOf(Class<?> klass) {
-        String simpleName = klass.getSimpleName();
-        if (simpleName.length() == 0) {
-            String fullName = klass.getName();
-            simpleName = simpleNameOf(fullName);
-        }
-        return simpleName;
-    }
-
-    public static String simpleNameOf(String fullName) {
-        return fullName.substring(fullName.lastIndexOf('.') + 1);
-    }
-    
     /**
      * Field values are not used � the only point of them is to avoid
      * "unused field" warnings.
@@ -44,7 +27,7 @@ public class DebugOutputHelper {
         try {
             Class<?> klass = object.getClass();
             int fieldCount = countFields(klass);
-            String simpleName = simpleNameOf(klass);
+            String simpleName = YsDebugging.simpleNameOf(klass);
             if (fieldCount == 0)
                 return simpleName;
             boolean showFieldNames = (fieldCount > 1);

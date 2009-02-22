@@ -76,5 +76,22 @@ public class YsDebugging {
     private static String hex(char ch) {
         return Integer.toHexString(ch).toUpperCase();
     }
+
+	public static String simpleNameOf(Object instance) {
+	    return simpleNameOf(instance.getClass());
+	}
+
+	public static String simpleNameOf(Class<?> klass) {
+	    String simpleName = klass.getSimpleName();
+	    if (simpleName.length() == 0) {
+	        String fullName = klass.getName();
+	        simpleName = simpleNameOf(fullName);
+	    }
+	    return simpleName;
+	}
+
+	public static String simpleNameOf(String fullName) {
+	    return fullName.substring(fullName.lastIndexOf('.') + 1);
+	}
     
 }
