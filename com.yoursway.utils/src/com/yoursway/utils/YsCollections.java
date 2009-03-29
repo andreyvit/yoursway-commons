@@ -5,8 +5,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.google.common.collect.Iterators;
 
@@ -46,6 +48,13 @@ public class YsCollections {
         List<T> list = newArrayList(iterator);
         Collections.sort(list);
         return list;
+    }
+    
+    public static <K, V> Map<K, V> immutableMap(Map<? extends K, ? extends V> map) {
+    	if (map.isEmpty())
+    		return Collections.emptyMap();
+    	else
+    		return Collections.unmodifiableMap(new HashMap<K, V>(map));
     }
     
 }
